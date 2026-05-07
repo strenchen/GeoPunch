@@ -26,7 +26,19 @@ export default function SettingsPage() {
   });
 
   const updateConfigMutation = useMutation({
-    mutationFn: (data: Partial<SystemConfig>) => configService.update(data),
+    mutationFn: ({ field, value }: { field: string; value: any }) => {
+      const keyMap: Record<string, string> = {
+        check_in_start: 'ATTENDANCE_WORK_START',
+        check_out_end: 'ATTENDANCE_WORK_END',
+        late_grace_minutes: 'LATE_GRACE_MINUTES',
+        location_radius: 'ATTENDANCE_GPS_RADIUS_DEFAULT',
+        max_makeup_per_month: 'MAX_MAKEUP_PER_MONTH',
+        makeup_window_days: 'MAKEUP_WINDOW_DAYS',
+        location_lat: 'ATTENDANCE_GPS_LAT',
+        location_lng: 'ATTENDANCE_GPS_LNG',
+      };
+      return configService.update(keyMap[field] || field.toUpperCase(), String(value));
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['systemConfig'] }); message.success(t('common.success')); },
     onError: () => message.error(t('common.error'))
   });
@@ -46,7 +58,7 @@ export default function SettingsPage() {
   const handleCloseHolidayModal = () => { setIsHolidayModalOpen(false); form.resetFields(); };
 
   const handleSaveConfig = (field: string, value: any) => {
-    updateConfigMutation.mutate({ [field]: value });
+    updateConfigMutation.mutate({ field, value });
   };
 
   const handleSubmitHoliday = (values: any) => {

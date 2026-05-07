@@ -129,7 +129,7 @@ export default function LeavePage() {
             <Col>
               <Statistic
                 title={t('leave.annual')}
-                value={leaveBalance.annual.remaining}
+                value={leaveBalance.annual?.remaining ?? leaveBalance.annualLeave?.remaining ?? 0}
                 suffix="天"
                 valueStyle={{ color: '#52c41a' }}
               />
@@ -137,7 +137,7 @@ export default function LeavePage() {
             <Col>
               <Statistic
                 title={t('leave.sick')}
-                value={leaveBalance.sick.remaining}
+                value={leaveBalance.sick?.remaining ?? leaveBalance.sickLeave?.remaining ?? 0}
                 suffix="天"
                 valueStyle={{ color: '#1890ff' }}
               />
@@ -145,7 +145,7 @@ export default function LeavePage() {
             <Col>
               <Statistic
                 title={t('leave.personal')}
-                value={leaveBalance.personal.remaining}
+                value={leaveBalance.personal?.remaining ?? leaveBalance.personalLeave?.remaining ?? 0}
                 suffix="天"
                 valueStyle={{ color: '#faad14' }}
               />

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ScheduleService } from './schedule.service';
 
 @Controller('schedules')
+@UseGuards(AuthGuard('jwt'))
 export class ScheduleController {
   constructor(private readonly scheduleService: ScheduleService) {}
 

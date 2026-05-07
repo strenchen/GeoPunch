@@ -53,10 +53,10 @@ export const employeeService = {
 
 // ============ 部门服务 ============
 export const departmentService = {
-  list: () => request<Department[]>('/employees/departments'),
+  list: () => request<Department[]>('/departments'),
   get: (id: number) => request<Department>(`/departments/${id}`),
-  create: (data: Omit<Department, 'id'>) => request<Department>('/departments', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: Partial<Department>) => request<Department>(`/departments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  create: (data: { name: string }) => request<Department>('/departments', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: { name: string }) => request<Department>(`/departments/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id: number) => request<void>(`/departments/${id}`, { method: 'DELETE' })
 };
 
@@ -82,21 +82,65 @@ export const attendanceService = {
 };
 
 // ============ 请假服务 ============
+interface LeaveListResponse {
+  requests: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export const leaveService = {
-  list: () => request<LeaveRequest[]>('/approval/leave'),
+  list: () => request<LeaveListResponse>('/approval/leave').then(r => r.requests),
   create: (data: Omit<LeaveRequest, 'id'>) => request<LeaveRequest>('/approval/leave', { method: 'POST', body: JSON.stringify(data) }),
   cancel: (id: number) => request<void>(`/approval/leave/${id}/cancel`, { method: 'PUT' }),
 };
 
 // ============ 补卡服务 ============
+interface MakeupListResponse {
+  requests: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export const makeupService = {
-  list: () => request<MakeupRequest[]>('/approval/makeup'),
+  list: () => request<MakeupListResponse>('/approval/makeup').then(r => r.requests),
   create: (data: Omit<MakeupRequest, 'id'>) => request<MakeupRequest>('/approval/makeup', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 // ============ 审批服务 ============
+interface PendingApiResponse {
+  leaveRequests: any[];
+  makeupRequests: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export const approvalService = {
-  list: () => request<ApprovalItem[]>('/approval/pending'),
+  list: () => request<PendingApiResponse>('/approval/pending').then(r => {
+    const items: ApprovalItem[] = [
+      ...r.leaveRequests.map(req => ({
+        id: req.id,
+        type: 'leave' as const,
+        employee_id: req.employeeId,
+        employee_name: req.employee?.name || '',
+        content: `${req.type} - ${req.reason}`,
+        detail: { ...req },
+        create_time: req.createdAt,
+      })),
+      ...r.makeupRequests.map(req => ({
+        id: req.id,
+        type: 'makeup' as const,
+        employee_id: req.employeeId,
+        employee_name: req.employee?.name || '',
+        content: `${req.type} - ${req.reason}`,
+        detail: { ...req },
+        create_time: req.createdAt,
+      })),
+    ];
+    return items;
+  }),
   approve: (id: number, type: 'leave' | 'makeup') =>
     request<void>(`/approval/${type}/${id}/approve`, { method: 'PUT' }),
   reject: (id: number, type: 'leave' | 'makeup') =>
@@ -104,9 +148,16 @@ export const approvalService = {
 };
 
 // ============ 排班服务 ============
+interface ScheduleListResponse {
+  schedules: any[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export const scheduleService = {
   list: (params?: { employee_id?: number; start_date?: string; end_date?: string }) =>
-    request<Schedule[]>(`/schedules?${params ? new URLSearchParams(params as Record<string,string>).toString() : ''}`, { method: 'GET' }),
+    request<ScheduleListResponse>(`/schedules?${params ? new URLSearchParams(params as Record<string,string>).toString() : ''}`, { method: 'GET' }).then(r => r.schedules),
   create: (data: Partial<Schedule>) => request<Schedule>('/schedules', { method: 'POST', body: JSON.stringify(data) }),
   update: (_id: number, data: Partial<Schedule>) => request<Schedule>(`/schedules`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (_id: number) => request<void>(`/schedules`, { method: 'DELETE' }),
@@ -119,14 +170,35 @@ export const statisticsService = {
   personal: () => request<AttendanceSummary>('/statistics/personal'),
   department: (id: number) => request<AttendanceSummary>(`/statistics/department/${id}`),
   company: () => request<AttendanceSummary>('/statistics/company'),
-  monthly: (_params: { year: number; month: number; department?: string }) =>
-    request<AttendanceSummary>('/statistics/monthly', { method: 'GET' }),
+  monthly: (params: { year: number; month: number; department?: string }) => {
+    const searchParams = new URLSearchParams({ year: String(params.year), month: String(params.month) });
+    if (params.department) searchParams.set('department', params.department);
+    const qs = searchParams.toString();
+    return request<any>(`/statistics/monthly${qs ? '?' + qs : ''}`, { method: 'GET' }).then(r => {
+      // 后端返回 { year, month, totalWorkingDays, employees: [...], departmentSummary: [...] }
+      // 转换为前端期望的 AttendanceSummary[] 格式
+      return (r.employees || []).map((emp: any) => ({
+        employee_id: emp.employee?.id,
+        employee_name: emp.employee?.name,
+        department_name: emp.employee?.department,
+        year_month: `${r.year}-${String(r.month).padStart(2,'0')}`,
+        total_work_days: r.totalWorkingDays,
+        normal_days: emp.normalDays,
+        late_days: emp.lateDays,
+        early_leave_days: emp.earlyLeaveDays,
+        absent_days: emp.absentDays,
+        leave_days: emp.leaveDays,
+        worked_days: emp.workedDays,
+      }));
+    });
+  },
 };
 
 // ============ 系统配置服务 ============
 export const configService = {
   get: () => request<SystemConfig[]>('/config'),
-  update: (data: Partial<SystemConfig>) => request<SystemConfig>('/config', { method: 'PUT', body: JSON.stringify(data) }),
+  update: (key: string, value: string, label?: string) =>
+    request<SystemConfig>(`/config/${encodeURIComponent(key)}`, { method: 'PUT', body: JSON.stringify({ value, label }) }),
   holidays: () => request<Holiday[]>('/config/attendance/config'),
   createHoliday: (data: Omit<Holiday, 'id'>) => request<Holiday>('/config/attendance/config', { method: 'POST', body: JSON.stringify(data) }),
   deleteHoliday: (_id: number) => request<void>(`/config/attendance/config`, { method: 'DELETE' }),

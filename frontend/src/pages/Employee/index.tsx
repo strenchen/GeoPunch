@@ -81,8 +81,12 @@ export default function EmployeePage() {
     if (record) {
       setEditingEmployee(record);
       form.setFieldsValue({
-        ...record,
-        department: record.department
+        employee_id: record.employeeNumber,
+        name: record.name,
+        department_id: record.department,
+        position: record.position,
+        role: record.role,
+        status: record.isActive ? 'active' : 'inactive',
       });
     } else {
       setEditingEmployee(null);
@@ -108,11 +112,11 @@ export default function EmployeePage() {
     };
     if (editingEmployee?.id) {
       // 编辑时包含工号（但不让用户修改）
-      transformed.employeeNumber = values.employeeNumber || editingEmployee.employeeNumber;
+      transformed.employeeNumber = values.employee_id || editingEmployee.employeeNumber;
       updateMutation.mutate({ id: editingEmployee.id, data: transformed });
     } else {
       // 新建时包含工号和密码
-      transformed.employeeNumber = values.employeeNumber || values.employee_id;
+      transformed.employeeNumber = values.employee_id || values.employee_id;
       transformed.password = values.password || 'admin123';
       createMutation.mutate(transformed);
     }

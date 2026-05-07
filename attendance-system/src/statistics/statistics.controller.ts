@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { StatisticsService } from './statistics.service';
 import { Response } from 'express';
@@ -11,8 +11,8 @@ export class StatisticsController {
   // 个人月度考勤统计
   @Get('personal')
   getPersonalStats(
-    @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
+    @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
   ) {
     return this.statisticsService.getPersonalStats(null, year, month);
   }
@@ -21,8 +21,8 @@ export class StatisticsController {
   @Get('department/:id')
   getDepartmentStats(
     @Param('id') id: string,
-    @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
+    @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
   ) {
     return this.statisticsService.getDepartmentStats(Number(id), year, month);
   }
@@ -30,8 +30,8 @@ export class StatisticsController {
   // 全局考勤统计（仅超级管理员）
   @Get('company')
   getCompanyStats(
-    @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
+    @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
   ) {
     return this.statisticsService.getCompanyStats(year, month);
   }
@@ -39,8 +39,8 @@ export class StatisticsController {
   // 月度考勤汇总
   @Get('monthly')
   getMonthlySummary(
-    @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
+    @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
     @Query('department') department?: string,
     @Query('employeeId') employeeId?: number,
   ) {
@@ -50,8 +50,8 @@ export class StatisticsController {
   // 导出月度Excel (流式响应)
   @Get('export')
   async exportMonthlyExcel(
-    @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
+    @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
     @Query('department') department: string,
     @Res() res: Response,
   ) {
@@ -63,8 +63,8 @@ export class StatisticsController {
   // 考勤异常趋势
   @Get('trend')
   getAbnormalTrend(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
+    @Query('startDate', new DefaultValuePipe(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])) startDate: string,
+    @Query('endDate', new DefaultValuePipe(new Date().toISOString().split('T')[0])) endDate: string,
     @Query('department') department?: string,
   ) {
     return this.statisticsService.getAbnormalTrend(startDate, endDate, department);

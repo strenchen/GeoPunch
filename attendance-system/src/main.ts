@@ -19,8 +19,20 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   // CORS 配置
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://8.133.202.164:8888',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ];
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://8.133.202.164:8888',
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // 允许没有 origin 的请求（如 Postman/curl）
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin ${origin} not allowed`), false);
+      }
+    },
     credentials: true,
   });
 

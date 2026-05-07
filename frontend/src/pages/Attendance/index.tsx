@@ -186,9 +186,9 @@ export default function AttendancePage() {
       {leaveBalance && (
         <Card title={t('attendance.leaveBalance')} style={{ marginBottom: 24 }} size="small">
           <Row gutter={24}>
-            <Col><Statistic title={t('leave.annual')} value={leaveBalance.annual.remaining} suffix="天" valueStyle={{ color: '#52c41a' }} /></Col>
-            <Col><Statistic title={t('leave.sick')} value={leaveBalance.sick.remaining} suffix="天" valueStyle={{ color: '#1890ff' }} /></Col>
-            <Col><Statistic title={t('leave.personal')} value={leaveBalance.personal.remaining} suffix="天" valueStyle={{ color: '#faad14' }} /></Col>
+            <Col><Statistic title={t('leave.annual')} value={leaveBalance.annual?.remaining ?? leaveBalance.annualLeave?.remaining ?? 0} suffix="天" valueStyle={{ color: '#52c41a' }} /></Col>
+            <Col><Statistic title={t('leave.sick')} value={leaveBalance.sick?.remaining ?? leaveBalance.sickLeave?.remaining ?? 0} suffix="天" valueStyle={{ color: '#1890ff' }} /></Col>
+            <Col><Statistic title={t('leave.personal')} value={leaveBalance.personal?.remaining ?? leaveBalance.personalLeave?.remaining ?? 0} suffix="天" valueStyle={{ color: '#faad14' }} /></Col>
           </Row>
         </Card>
       )}

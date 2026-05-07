@@ -13,9 +13,12 @@
     "loading": "Loading...",
     "noData": "No Data",
     "actions": "Actions",
-    "remark": "Remark"
+    "remark": "Remark",
+    "logout": "Logout"
   },
-  "app": { "title": "Attendance System" },
+  "app": {
+    "title": "Attendance System"
+  },
   "menu": {
     "employee": "Employee",
     "attendance": "Attendance",
@@ -23,7 +26,8 @@
     "approval": "Approval",
     "report": "Report",
     "schedule": "Schedule",
-    "settings": "Settings"
+    "settings": "Settings",
+    "department": "Departments"
   },
   "employee": {
     "title": "Employee Management",
@@ -198,5 +202,11 @@
       "workday": "Workday",
       "offday": "Holiday"
     }
+  },
+  "department": {
+    "title": "Department Management",
+    "addDepartment": "Add Department",
+    "editDepartment": "Edit Department",
+    "namePlaceholder": "Enter department name"
   }
 }

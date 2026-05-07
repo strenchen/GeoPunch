@@ -11,6 +11,17 @@ datasource db {
 }
 
 // ============================================================
+// 表: 部门表
+// ============================================================
+model Department {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("department")
+}
+
+// ============================================================
 // 表1: 员工表
 // ============================================================
 model Employee {
@@ -292,4 +303,17 @@ model ShiftChange {
 
   @@index([employeeId, status])
   @@map("shift_change")
+}
+
+// ============================================================
+// 表: 节假日表
+// ============================================================
+model Holiday {
+  id        Int      @id @default(autoincrement())
+  date      String   @unique @map("date")
+  name      String   @map("name")
+  isWorkday Boolean  @default(false) @map("is_workday")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("holiday")
 }

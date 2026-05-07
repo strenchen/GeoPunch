@@ -13,9 +13,12 @@
     "loading": "加载中...",
     "noData": "暂无数据",
     "actions": "操作",
-    "remark": "备注"
+    "remark": "备注",
+    "logout": "退出"
   },
-  "app": { "title": "考勤管理系统" },
+  "app": {
+    "title": "考勤管理系统"
+  },
   "menu": {
     "employee": "员工管理",
     "attendance": "考勤打卡",
@@ -23,7 +26,8 @@
     "approval": "审批管理",
     "report": "统计报表",
     "schedule": "排班管理",
-    "settings": "系统设置"
+    "settings": "系统设置",
+    "department": "部门管理"
   },
   "employee": {
     "title": "员工管理",
@@ -198,5 +202,11 @@
       "workday": "上班",
       "offday": "放假"
     }
+  },
+  "department": {
+    "title": "部门管理",
+    "addDepartment": "添加部门",
+    "editDepartment": "编辑部门",
+    "namePlaceholder": "请输入部门名称"
   }
 }

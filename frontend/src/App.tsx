@@ -11,6 +11,7 @@ import LeavePage from './pages/Leave';
 import ApprovalPage from './pages/Approval';
 import ReportPage from './pages/Report';
 import SchedulePage from './pages/Schedule';
+import DepartmentPage from './pages/Department';
 import SettingsPage from './pages/Settings';
 import { useAppStore } from './store/appStore';
 import './i18n';
@@ -31,6 +32,7 @@ function AppContent() {
           <Route path="approval" element={<ApprovalPage />} />
           <Route path="report" element={<ReportPage />} />
           <Route path="schedule" element={<SchedulePage />} />
+          <Route path="department" element={<DepartmentPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>

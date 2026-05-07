@@ -20,8 +20,11 @@ export type LeaveType = '事假' | '病假' | '年假' | '其他';
 export interface LeaveBalance {
   employeeId: number;
   annual: { total: number; used: number; remaining: number };
+  annualLeave: { total: number; used: number; remaining: number };
   sick: { total: number; used: number; remaining: number };
+  sickLeave: { total: number; used: number; remaining: number };
   personal: { total: number; used: number; remaining: number };
+  personalLeave: { total: number; used: number; remaining: number };
 }
 
 // === 员工 ===

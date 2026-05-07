@@ -93,11 +93,11 @@
     <view class="card actions-card">
       <text class="card-title">快捷操作</text>
       <view class="actions-grid">
-        <view class="action-item" @click="navigateTo('/pages/leave-apply/index')">
+        <view class="action-item" @click="navigateTo('/pages/leave/index')">
           <text class="action-icon">📋</text>
           <text class="action-text">请假申请</text>
         </view>
-        <view class="action-item" @click="navigateTo('/pages/makeup-apply/index')">
+        <view class="action-item" @click="navigateTo('/pages/makeup/index')">
           <text class="action-icon">🔄</text>
           <text class="action-text">补卡申请</text>
         </view>

@@ -1,5 +1,5 @@
-// API Base URL - points to the same backend
-const API_BASE = 'http://8.133.202.164:8888/api/v1'
+// API Base URL - relative path for mini-app requests
+const API_BASE = '/api/v1'
 
 // Request wrapper with auth
 async function request(url, options = {}) {

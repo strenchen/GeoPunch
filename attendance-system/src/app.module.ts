@@ -14,6 +14,8 @@ import { StorageModule } from './storage/storage.module';
 import { LoggingModule } from './logging/logging.module';
 import { ConfigModule as SystemConfigModule } from './config/config.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { DepartmentModule } from './department/department.module';
+import { HolidayModule } from './holiday/holiday.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { ScheduleModule } from './schedule/schedule.module';
     LoggingModule,
     SystemConfigModule,
     ScheduleModule,
+    DepartmentModule,
+    HolidayModule,
   ],
 })
 export class AppModule {}

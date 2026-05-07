@@ -184,7 +184,11 @@ export class ApprovalService {
     }
 
     // 记录操作日志
-    await this.logOperation(approverId, 'LEAVE', decision, 'leave_request', requestId, comment || '');
+    try {
+      await this.logOperation(approverId, 'LEAVE', decision, 'leave_request', requestId, comment || '');
+    } catch (logErr) {
+      console.error('日志记录失败:', logErr);
+    }
 
     return {
       code: 0,

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Layout, Menu, Button } from 'antd';
-import { UserOutlined, ClockCircleOutlined, CalendarOutlined, CheckCircleOutlined, BarChartOutlined, ScheduleOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
+import { UserOutlined, ClockCircleOutlined, CalendarOutlined, CheckCircleOutlined, BarChartOutlined, ScheduleOutlined, SettingOutlined, LogoutOutlined, TeamOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 
@@ -24,6 +24,7 @@ export default function MainLayout() {
     { key: '/approval', icon: <CheckCircleOutlined />, label: t('menu.approval') },
     { key: '/report', icon: <BarChartOutlined />, label: t('menu.report') },
     { key: '/schedule', icon: <ScheduleOutlined />, label: t('menu.schedule') },
+    { key: '/department', icon: <TeamOutlined />, label: t('menu.department') },
     { key: '/settings', icon: <SettingOutlined />, label: t('menu.settings') }
   ];
 
