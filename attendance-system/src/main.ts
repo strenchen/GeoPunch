@@ -24,8 +24,12 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // API 前缀
+  // API 前缀 (nginx 已剥离 /api/v1 前缀)
   app.setGlobalPrefix('api/v1');
+
+  // 上传文件静态访问
+  const uploadsPath = process.env.UPLOAD_BASE_PATH || '/root/.openclaw/workspaces/coordinator/GeoPunch-project/uploads';
+  app.use('/uploads', require('express').static(uploadsPath));
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

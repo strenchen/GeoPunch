@@ -29,15 +29,22 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 // ============ 认证服务 ============
 export const authService = {
   login: (data: { employeeNumber: string; password: string }) =>
-    request<{ code: number; message: string; data: { accessToken: string; refreshToken: string; expiresIn: number; employee: Employee } }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+    request<{ accessToken: string; refreshToken: string; expiresIn: number; employee: Employee }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   getProfile: () => request<Employee>('/auth/profile'),
   refreshToken: () => request<{ token: string }>('/auth/refresh', { method: 'POST' }),
 };
 
+interface PaginatedResponse<T> {
+  employees: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 // ============ 员工服务 ============
 export const employeeService = {
   list: (params?: { department_id?: number; status?: string; search?: string }) =>
-    request<Employee[]>('/employees', { method: 'POST', body: JSON.stringify(params || {}) }),
+    request<PaginatedResponse<Employee>>('/employees', { method: 'POST', body: JSON.stringify(params || {}) }),
   get: (id: number) => request<Employee>(`/employees/${id}`),
   create: (data: Omit<Employee, 'id'>) => request<Employee>('/employees', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: Partial<Employee>) => request<Employee>(`/employees/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -55,8 +62,14 @@ export const departmentService = {
 
 // ============ 打卡服务 ============
 export const attendanceService = {
-  records: (params?: { employee_id?: number; start_date?: string; end_date?: string }) =>
-    request<AttendanceRecord[]>('/attendance/records', { method: 'POST', body: JSON.stringify(params || {}) }),
+  records: (params?: { employee_id?: number; start_date?: string; end_date?: string; month?: number; year?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.employee_id) searchParams.set('employeeId', String(params.employee_id));
+    if (params?.month) searchParams.set('month', String(params.month));
+    if (params?.year) searchParams.set('year', String(params.year));
+    const qs = searchParams.toString();
+    return request<AttendanceRecord[]>(`/attendance/records${qs ? '?' + qs : ''}`, { method: 'GET' });
+  },
   clockIn: (data: { latitude?: number; longitude?: number; address?: string }) =>
     request<AttendanceRecord>('/attendance/clock', { method: 'POST', body: JSON.stringify({ type: 'CHECK_IN', ...data }) }),
   clockOut: (data: { latitude?: number; longitude?: number; address?: string }) =>

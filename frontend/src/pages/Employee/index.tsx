@@ -23,10 +23,12 @@ export default function EmployeePage() {
   const [filterStatus, setFilterStatus] = useState<EmployeeStatus | undefined>();
 
   // 查询
-  const { data: employees = [] } = useQuery({
+  const { data: employeesData } = useQuery({
     queryKey: ['employees'],
     queryFn: () => employeeService.list()
   });
+
+  const employees = employeesData?.employees || [];
 
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
@@ -38,10 +40,9 @@ export default function EmployeePage() {
     return (employees as Employee[]).filter(emp => {
       const matchSearch = !searchText ||
         emp.name?.includes(searchText) ||
-        emp.employee_id?.includes(searchText) ||
-        emp.phone?.includes(searchText);
-      const matchDept = !filterDept || emp.department_id === filterDept;
-      const matchStatus = !filterStatus || emp.status === filterStatus;
+        emp.employeeNumber?.includes(searchText);
+      const matchDept = !filterDept || emp.department === (departments as unknown as string[])[filterDept];
+      const matchStatus = !filterStatus || (filterStatus === 'active' ? emp.isActive : !emp.isActive);
       return matchSearch && matchDept && matchStatus;
     });
   }, [employees, searchText, filterDept, filterStatus]);
@@ -81,7 +82,7 @@ export default function EmployeePage() {
       setEditingEmployee(record);
       form.setFieldsValue({
         ...record,
-        department_id: record.department_id
+        department: record.department
       });
     } else {
       setEditingEmployee(null);
@@ -97,10 +98,23 @@ export default function EmployeePage() {
   };
 
   const handleSubmit = (values: any) => {
+    // Transform form values to match backend API
+    const transformed: any = {
+      name: values.name,
+      department: values.department_id || values.department,
+      position: values.position,
+      role: values.role,
+      isActive: values.status === 'active',
+    };
     if (editingEmployee?.id) {
-      updateMutation.mutate({ id: editingEmployee.id, data: values });
+      // 编辑时包含工号（但不让用户修改）
+      transformed.employeeNumber = values.employeeNumber || editingEmployee.employeeNumber;
+      updateMutation.mutate({ id: editingEmployee.id, data: transformed });
     } else {
-      createMutation.mutate(values as Omit<Employee, 'id'>);
+      // 新建时包含工号和密码
+      transformed.employeeNumber = values.employeeNumber || values.employee_id;
+      transformed.password = values.password || 'admin123';
+      createMutation.mutate(transformed);
     }
   };
 
@@ -112,31 +126,21 @@ export default function EmployeePage() {
     });
   };
 
-  const getDeptName = (idOrName: any) =>
-    typeof idOrName === 'string' ? idOrName : ((departments as unknown) as string[]).find(d => d === idOrName) || String(idOrName);
-
   const columns: Column<Employee>[] = [
-    { name: t('employee.employeeId'), key: 'employee_id', width: 120 },
+    { name: t('employee.employeeId'), key: 'employeeNumber', width: 120 },
     { name: t('employee.name'), key: 'name', width: 120 },
-    { name: t('employee.phone'), key: 'phone', width: 140 },
-    { name: t('employee.department'), key: 'department_id', width: 140,
-      renderCell: ({ row }) => getDeptName(row.department_id) },
-    { name: t('employee.employeeType'), key: 'employee_type', width: 130,
-      renderCell: ({ row }) => {
-        const colors: Record<string, string> = { leader: 'gold', sales: 'blue', rd_admin: 'green' };
-        return <Tag color={colors[row.employee_type]}>{t(`employeeType.${row.employee_type}`)}</Tag>;
-      }
-    },
+    { name: t('employee.phone'), key: 'phone', width: 140, renderCell: () => <Tag>-</Tag> },
+    { name: t('employee.department'), key: 'department', width: 140 },
+    { name: t('employee.position'), key: 'position', width: 130 },
     { name: t('employee.role'), key: 'role', width: 130,
       renderCell: ({ row }) => {
-        const colors: Record<string, string> = { super_admin: 'red', dept_admin: 'orange', employee: 'default' };
-        return <Tag color={colors[row.role]}>{t(`systemRole.${row.role}`)}</Tag>;
+        const colors: Record<string, string> = { ADMIN: 'red', MANAGER: 'orange', EMPLOYEE: 'default' };
+        return <Tag color={colors[row.role] || 'default'}>{row.role}</Tag>;
       }
     },
-    { name: t('employee.status'), key: 'status', width: 100,
+    { name: t('employee.status'), key: 'isActive', width: 100,
       renderCell: ({ row }) => {
-        const colors: Record<string, string> = { active: 'green', inactive: 'orange', left: 'red' };
-        return <Tag color={colors[row.status]}>{t(`employeeStatus.${row.status}`)}</Tag>;
+        return <Tag color={row.isActive ? 'green' : 'orange'}>{row.isActive ? '在职' : '离职'}</Tag>;
       }
     },
     {

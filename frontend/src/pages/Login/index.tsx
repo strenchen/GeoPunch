@@ -12,11 +12,10 @@ export default function LoginPage() {
 
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
-      const res = await authService.login({ 
+      const { accessToken, employee } = await authService.login({ 
         employeeNumber: values.username, 
         password: values.password 
       });
-      const { accessToken, employee } = res.data;
       setToken(accessToken);
       setCurrentUser({ 
         id: employee.id as number, 

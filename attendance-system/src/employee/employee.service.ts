@@ -110,16 +110,19 @@ export class EmployeeService {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
+    const createData: any = {
+      employeeNumber: data.employeeNumber,
+      name: data.name,
+      passwordHash,
+      department: data.department,
+      position: data.position,
+      role: (data.role || 'EMPLOYEE') as any,
+      hireDate: data.hireDate || new Date(),
+    };
+    delete createData.phone;
+    delete createData.email;
     const employee = await this.prisma.employee.create({
-      data: {
-        employeeNumber: data.employeeNumber,
-        name: data.name,
-        passwordHash,
-        department: data.department,
-        position: data.position,
-        role: (data.role || 'EMPLOYEE') as any,
-        hireDate: data.hireDate || new Date(),
-      },
+      data: createData,
       select: {
         id: true,
         employeeNumber: true,
@@ -165,6 +168,11 @@ export class EmployeeService {
     if (data.role && requesterRole !== 'ADMIN') {
       delete data.role;
     }
+
+    // 过滤不允许更新的字段
+    delete (data as any).phone;
+    delete (data as any).passwordHash;
+    delete (data as any).hireDate;
 
     const updated = await this.prisma.employee.update({
       where: { id },

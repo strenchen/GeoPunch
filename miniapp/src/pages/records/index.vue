@@ -108,6 +108,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useDidShow } from '@tarojs/taro'
 import { attendanceService } from '../../../store/user'
 
 // ============ State ============
@@ -247,9 +248,6 @@ function onMonthChange(e) {
 useDidShow(() => {
   loadData()
 })
-
-// Taro 3 + Vue 3 Composition API hook
-import { useDidShow } from '@tarojs/taro'
 </script>
 
 <style scoped>

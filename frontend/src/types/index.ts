@@ -19,26 +19,24 @@ export type LeaveType = '事假' | '病假' | '年假' | '其他';
 // === 请假余额 ===
 export interface LeaveBalance {
   employeeId: number;
-  annual: number;    // 年假剩余
-  sick: number;       // 病假剩余
-  personal: number;   // 事假剩余
+  annual: { total: number; used: number; remaining: number };
+  sick: { total: number; used: number; remaining: number };
+  personal: { total: number; used: number; remaining: number };
 }
 
 // === 员工 ===
 export interface Employee {
-  id?: number;
-  employee_id: string;      // 工号
+  id: number;
+  employeeNumber: string;      // 工号
   name: string;             // 姓名
   email?: string;
   phone?: string;
-  department_id: number;     // 部门ID
-  department_name?: string; // 部门名称（展示用）
-  employee_type: EmployeeType;
-  role: SystemRole;
-  position?: string;
-  status: EmployeeStatus;
-  created_at?: string;
-  updated_at?: string;
+  department: string;        // 部门名称
+  position?: string;        // 职位
+  role: string;             // 角色: ADMIN, MANAGER, EMPLOYEE
+  isActive: boolean;        // 是否在职
+  hireDate?: string;
+  createdAt?: string;
 }
 
 // === 打卡记录 ===

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Layout, Menu } from 'antd';
-import { UserOutlined, ClockCircleOutlined, CalendarOutlined, CheckCircleOutlined, BarChartOutlined, ScheduleOutlined, SettingOutlined } from '@ant-design/icons';
+import { Layout, Menu, Button } from 'antd';
+import { UserOutlined, ClockCircleOutlined, CalendarOutlined, CheckCircleOutlined, BarChartOutlined, ScheduleOutlined, SettingOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/appStore';
 
@@ -9,7 +9,13 @@ const { Header, Content, Sider } = Layout;
 export default function MainLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setLocale, locale } = useAppStore();
+  const { setLocale, locale, setToken, setCurrentUser, currentUser } = useAppStore();
+
+  const handleLogout = () => {
+    setToken(null);
+    setCurrentUser(null);
+    navigate('/login');
+  };
 
   const menuItems = [
     { key: '/employee', icon: <UserOutlined />, label: t('menu.employee') },
@@ -25,6 +31,21 @@ export default function MainLayout() {
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#001529', padding: '0 24px' }}>
         <div style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>{t('app.title')}</div>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          {currentUser && (
+            <span style={{ color: '#fff', fontSize: 14 }}>
+              {currentUser.name} ({currentUser.role})
+            </span>
+          )}
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            style={{ color: '#fff' }}
+          >
+            {t('common.logout') || '退出'}
+          </Button>
+        </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => setLocale('zh')}
