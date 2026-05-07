@@ -1,0 +1,75 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "reset": "Reset",
+    "confirm": "Confirm",
+    "success": "Success",
+    "error": "Error",
+    "loading": "Loading...",
+    "noData": "No Data"
+  },
+  "menu": {
+    "employee": "Employee",
+    "attendance": "Attendance",
+    "leave": "Leave",
+    "approval": "Approval",
+    "report": "Report"
+  },
+  "employee": {
+    "title": "Employee Management",
+    "addEmployee": "Add Employee",
+    "editEmployee": "Edit Employee",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "department": "Department",
+    "position": "Position",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "clockIn": "Clock In",
+    "clockOut": "Clock Out",
+    "clockInRecord": "Clock In Record",
+    "clockOutRecord": "Clock Out Record",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "normal": "Normal",
+    "late": "Late",
+    "leaveEarly": "Leave Early"
+  },
+  "leave": {
+    "title": "Leave Request",
+    "addLeave": "Apply Leave",
+    "leaveType": "Leave Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "reason": "Reason",
+    "annual": "Annual Leave",
+    "sick": "Sick Leave",
+    "personal": "Personal Leave",
+    "makeup": "Makeup Request",
+    "applyMakeup": "Apply Makeup"
+  },
+  "approval": {
+    "title": "Approval Management",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "report": {
+    "title": "Statistics Report",
+    "export": "Export Excel",
+    "summary": "Attendance Summary"
+  }
+}

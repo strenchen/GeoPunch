@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # MySQL 8.0 主数据库
+  # ============================================================
+  mysql:
+    image: mysql:8.0
+    container_name: geopunch-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-geopunch}
+      MYSQL_USER: ${MYSQL_USER:-geopunch}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-geopunch123}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=500
+      - --innodb_buffer_pool_size=256M
+    networks:
+      - geopunch-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Redis 7 缓存/会话
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: geopunch-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command:
+      - --maxmemory=256mb
+      - --maxmemory-policy=allkeys-lru
+      - --appendonly=yes
+      - --appendfsync=everysec
+    networks:
+      - geopunch-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # MinIO 对象存储（替代S3，用于打卡照片存储）
+  # ============================================================
+  minio:
+    image: minio/minio:latest
+    container_name: geopunch-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - geopunch-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ============================================================
+  # MinIO Client (mc) - 用于初始化桶
+  # ============================================================
+  minio-setup:
+    image: minio/mc:latest
+    container_name: geopunch-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5 &&
+      mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD} &&
+      mc mb myminio/geopunch-photos --ignore-existing &&
+      mc anonymous set download myminio/geopunch-photos &&
+      mc policy set download myminio/geopunch-photos &&
+      echo 'MinIO bucket geopunch-photos created successfully'
+      "
+    networks:
+      - geopunch-net
+
+  # ============================================================
+  # 可选：phpMyAdmin 数据库管理界面
+  # ============================================================
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: geopunch-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${MYSQL_USER:-geopunch}
+      PMA_PASSWORD: ${MYSQL_PASSWORD:-geopunch123}
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - geopunch-net
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+
+networks:
+  geopunch-net:
+    driver: bridge
+    name: geopunch-network

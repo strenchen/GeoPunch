@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// 表1: 员工表
+// ============================================================
+model Employee {
+  id              Int      @id @default(autoincrement())
+  employeeNumber  String   @unique @map("employee_number") // 工号
+  name            String                               // 姓名
+  passwordHash    String   @map("password_hash")        // 密码哈希
+  department      String                              // 部门
+  position        String?                             // 岗位
+  role            Role      @default(EMPLOYEE)         // 角色
+  hireDate        DateTime  @map("hire_date")          // 入职日期
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // 关联
+  attendances           Attendance[]
+  leaveRequests         LeaveRequest[]
+  makeupRequests        MakeupRequest[]
+  approvedLeaves        LeaveRequest[]       @relation("ApproverLeave")
+  approvedMakeups       MakeupRequest[]      @relation("ApproverMakeup")
+  attendanceAbnormals   AttendanceAbnormal[]
+  managedDepartment     LocationWhitelist[]  @relation("ManagedDepartment")
+  schedules      Schedule[]
+  shiftChanges  ShiftChange[]
+  approvedShifts ShiftChange[] @relation("ApproverShift")
+
+  @@map("employee")
+}
+
+// ============================================================
+// 表2: 考勤打卡记录
+// ============================================================
+model Attendance {
+  id        Int       @id @default(autoincrement())
+  employeeId Int      @map("employee_id")
+  type      ClockType @map("type")          // CHECK_IN / CHECK_OUT
+  checkTime DateTime  @map("check_time")   // 打卡时间
+  latitude  Float     @map("latitude")     // 纬度
+  longitude Float     @map("longitude")    // 经度
+  address   String?   @map("address")      // 地址描述
+  deviceId  String?   @map("device_id")   // 设备ID
+  status    AttendStatus @default(NORMAL) @map("status") // NORMAL / LATE / EARLY_LEAVE / ABSENT / MAKEUP
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, checkTime])
+  @@index([type, checkTime])
+  @@map("attendance")
+}
+
+// ============================================================
+// 表3: 考勤异常记录（GPS异常、虚假打卡等）
+// ============================================================
+model AttendanceAbnormal {
+  id           Int          @id @default(autoincrement())
+  employeeId   Int          @map("employee_id")
+  type         AbnormalType @map("type")          // GPS_OUT_OF_RANGE / SUSPICIOUS / REPEAT_CLOCK
+  latitude     Float        @map("latitude")
+  longitude    Float        @map("longitude")
+  address      String?      @map("address")
+  deviceId     String?      @map("device_id")
+  checkTime    DateTime     @map("check_time")
+  status       AbnormalStatus @default(PENDING) @map("status") // PENDING / APPROVED / REJECTED
+  resolvedNote String?      @map("resolved_note")
+  resolvedAt   DateTime?    @map("resolved_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, status])
+  @@index([checkTime])
+  @@map("attendance_abnormal")
+}
+
+// ============================================================
+// 表4: 请假申请
+// ============================================================
+model LeaveRequest {
+  id               Int          @id @default(autoincrement())
+  employeeId       Int          @map("employee_id")
+  type             LeaveType    @map("type")          // ANNUAL / SICK / PERSONAL / MARRIAGE / MATERNITY / PATERNITY / BEREAVEMENT / UNPAID
+  startDate        DateTime     @map("start_date")
+  endDate          DateTime     @map("end_date")
+  reason           String       @map("reason")
+  attachments      String?     @map("attachments")   // JSON数组，存储附件URL
+  status           ApproveStatus @default(PENDING) @map("status") // PENDING / APPROVED / REJECTED
+  approverId       Int?         @map("approver_id")
+  approverComment  String?      @map("approver_comment")
+  decidedAt        DateTime?     @map("decided_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  approver Employee? @relation("ApproverLeave", fields: [approverId], references: [id])
+
+  @@index([employeeId, status])
+  @@index([status])
+  @@map("leave_request")
+}
+
+// ============================================================
+// 表5: 补卡申请
+// ============================================================
+model MakeupRequest {
+  id               Int          @id @default(autoincrement())
+  employeeId       Int          @map("employee_id")
+  date             DateTime     @map("date")           // 补卡日期
+  type             ClockType    @map("type")          // CHECK_IN / CHECK_OUT
+  reason           String       @map("reason")
+  attachments      String?      @map("attachments")
+  status           ApproveStatus @default(PENDING) @map("status")
+  approverId       Int?         @map("approver_id")
+  approverComment  String?      @map("approver_comment")
+  decidedAt        DateTime?     @map("decided_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  approver Employee? @relation("ApproverMakeup", fields: [approverId], references: [id])
+
+  @@index([employeeId, status])
+  @@index([status])
+  @@map("makeup_request")
+}
+
+// ============================================================
+// 表6: 考勤地点白名单（允许打卡的位置）
+// ============================================================
+model LocationWhitelist {
+  id          Int      @id @default(autoincrement())
+  name        String                             // 地点名称，如"总部办公室"
+  department  String                             // 适用部门
+  latitude    Float     @map("latitude")        // 中心点纬度
+  longitude   Float     @map("longitude")       // 中心点经度
+  radiusMeters Int      @default(200) @map("radius_meters") // 允许打卡半径（米）
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  managedBy   Int?      @map("managed_by")
+  manager     Employee? @relation("ManagedDepartment", fields: [managedBy], references: [id])
+
+  @@index([department, isActive])
+  @@map("location_whitelist")
+}
+
+// ============================================================
+// 表7: 系统配置表
+// ============================================================
+model SystemConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  type      ConfigType @default(STRING) @map("type") // STRING / NUMBER / BOOLEAN / JSON
+  label     String                             // 配置说明
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}
+
+// ============================================================
+// 表8: 操作日志表
+// ============================================================
+model OperationLog {
+  id         Int      @id @default(autoincrement())
+  operatorId Int      @map("operator_id")
+  module     String                          // 模块
+  action     String                          // 操作类型
+  targetType String?  @map("target_type")   // 目标类型
+  targetId   Int?     @map("target_id")     // 目标ID
+  detail     String?  @map("detail")        // 详细描述
+  ip         String?  @map("ip")            // IP地址
+  userAgent  String?  @map("user_agent")    // 浏览器UA
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([operatorId, createdAt])
+  @@index([module, action])
+  @@map("operation_log")
+}
+
+// ============================================================
+// 枚举定义
+// ============================================================
+enum Role {
+  ADMIN      // 超级管理员
+  MANAGER    // 部门主管
+  EMPLOYEE   // 普通员工
+}
+
+enum ClockType {
+  CHECK_IN   // 上班打卡
+  CHECK_OUT  // 下班打卡
+}
+
+enum AttendStatus {
+  NORMAL     // 正常
+  LATE       // 迟到
+  EARLY_LEAVE // 早退
+  ABSENT     // 缺勤
+  MAKEUP     // 补卡
+}
+
+enum AbnormalType {
+  GPS_OUT_OF_RANGE  // GPS不在允许范围
+  SUSPICIOUS        // 可疑打卡（疑似作弊）
+  REPEAT_CLOCK      // 重复打卡
+}
+
+enum AbnormalStatus {
+  PENDING   // 待处理
+  APPROVED  // 已处理-通过
+  REJECTED  // 已处理-拒绝
+}
+
+enum LeaveType {
+  ANNUAL    // 年假
+  SICK      // 病假
+  PERSONAL  // 事假
+  MARRIAGE  // 婚假
+  MATERNITY // 产假
+  PATERNITY // 陪产假
+  BEREAVEMENT // 丧假
+  UNPAID    // 无薪假
+}
+
+enum ApproveStatus {
+  PENDING   // 待审批
+  APPROVED  // 已批准
+  REJECTED  // 已拒绝
+}
+
+enum ConfigType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+// ============================================================
+// 表9: 排班表
+// ============================================================
+model Schedule {
+  id           Int      @id @default(autoincrement())
+  employeeId   Int      @map("employee_id")
+  scheduleDate DateTime @map("schedule_date") // 排班日期
+  shiftType    String   @map("shift_type")   // 班次类型：MORNING/AFTERNOON/FULL/REST
+  startTime    String   @map("start_time")  // 开始时间
+  endTime      String   @map("end_time")    // 结束时间
+  status       String   @default("NORMAL")   // NORMAL/LEAVE/SHIFT
+  notes        String?  @map("notes")        // 备注
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, scheduleDate])
+  @@map("schedule")
+}
+
+// ============================================================
+// 表10: 调班申请表
+// ============================================================
+model ShiftChange {
+  id            Int      @id @default(autoincrement())
+  employeeId    Int      @map("employee_id")
+  originalDate  DateTime @map("original_date") // 原排班日期
+  targetDate    DateTime @map("target_date")   // 目标日期
+  reason        String?                          // 调班原因
+  status        String   @default("PENDING")  // PENDING/APPROVED/REJECTED
+  approverId    Int?     @map("approver_id")
+  approvedAt    DateTime? @map("approved_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  approver Employee? @relation("ApproverShift", fields: [approverId], references: [id])
+
+  @@index([employeeId, status])
+  @@map("shift_change")
+}

@@ -1,0 +1,202 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "新增",
+    "search": "搜索",
+    "reset": "重置",
+    "confirm": "确认",
+    "success": "成功",
+    "error": "错误",
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "actions": "操作",
+    "remark": "备注"
+  },
+  "app": { "title": "考勤管理系统" },
+  "menu": {
+    "employee": "员工管理",
+    "attendance": "考勤打卡",
+    "leave": "请假补卡",
+    "approval": "审批管理",
+    "report": "统计报表",
+    "schedule": "排班管理",
+    "settings": "系统设置"
+  },
+  "employee": {
+    "title": "员工管理",
+    "addEmployee": "新增员工",
+    "editEmployee": "编辑员工",
+    "deleteConfirm": "确认删除该员工？",
+    "employeeId": "工号",
+    "name": "姓名",
+    "email": "邮箱",
+    "phone": "电话",
+    "department": "部门",
+    "position": "职位",
+    "status": "状态",
+    "active": "在职",
+    "inactive": "停职",
+    "left": "离职",
+    "employeeType": "岗位类型",
+    "role": "系统角色",
+    "filterDept": "筛选部门",
+    "filterStatus": "筛选状态"
+  },
+  "employeeType": {
+    "leader": "领导",
+    "sales": "销售",
+    "rd_admin": "研发/行政"
+  },
+  "systemRole": {
+    "super_admin": "超级管理员",
+    "dept_admin": "部门管理员",
+    "employee": "普通员工"
+  },
+  "employeeStatus": {
+    "active": "在职",
+    "inactive": "停职",
+    "left": "离职"
+  },
+  "attendance": {
+    "title": "考勤打卡",
+    "clockIn": "上班打卡",
+    "clockOut": "下班打卡",
+    "clockInRecord": "上班打卡记录",
+    "clockOutRecord": "下班打卡记录",
+    "clockInSuccess": "上班打卡成功",
+    "clockOutSuccess": "下班打卡成功",
+    "date": "日期",
+    "time": "时间",
+    "status": "状态",
+    "normal": "正常",
+    "late": "迟到",
+    "leaveEarly": "早退",
+    "absent": "缺勤",
+    "location": "打卡地点",
+    "alreadyClockIn": "今日已上班打卡，是否重新打卡？",
+    "alreadyClockOut": "今日已下班打卡，是否重新打卡？",
+    "pleaseClockInFirst": "请先上班打卡",
+    "notClockIn": "未打卡",
+    "notClockOut": "未打卡",
+    "clockedIn": "已打卡",
+    "clockedOut": "已打卡",
+    "todayStatus": "上班打卡",
+    "clockOutStatus": "下班打卡",
+    "leaveBalance": "请假余额",
+    "monthSummary": "本月考勤统计",
+    "totalWorkDays": "应出勤",
+    "normalDays": "正常",
+    "lateDays": "迟到",
+    "earlyLeaveDays": "早退",
+    "absentDays": "缺勤",
+    "leaveDays": "请假"
+  },
+  "attendanceStatus": {
+    "normal": "正常",
+    "late": "迟到",
+    "early": "早退",
+    "absent": "缺勤"
+  },
+  "leave": {
+    "title": "请假申请",
+    "addLeave": "申请请假",
+    "leaveType": "请假类型",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "dateRange": "请假区间",
+    "duration": "时长",
+    "reason": "请假原因",
+    "annual": "年假",
+    "sick": "病假",
+    "personal": "事假",
+    "other": "其他",
+    "makeup": "补卡申请",
+    "applyMakeup": "申请补卡"
+  },
+  "leaveType": {
+    "年假": "年假",
+    "病假": "病假",
+    "事假": "事假",
+    "其他": "其他"
+  },
+  "makeup": {
+    "checkTime": "补打时间",
+    "checkTimeTip": "填写需要补打的实际打卡时间（近3日内）"
+  },
+  "approval": {
+    "title": "审批管理",
+    "pending": "待审批",
+    "approved": "已通过",
+    "rejected": "已拒绝",
+    "approve": "批准",
+    "reject": "拒绝",
+    "type": "类型",
+    "detail": "申请详情",
+    "createTime": "申请时间",
+    "applicant": "申请人",
+    "remark": "审批意见",
+    "remarkPlaceholder": "选填，可填写审批备注"
+  },
+  "approvalStatus": {
+    "pending": "待审批",
+    "approved": "已通过",
+    "rejected": "已拒绝",
+    "cancelled": "已取消"
+  },
+  "report": {
+    "title": "统计报表",
+    "export": "导出Excel",
+    "summary": "考勤汇总",
+    "personal": "个人统计",
+    "department": "部门统计",
+    "all": "全局统计",
+    "totalEmployees": "员工数"
+  },
+  "schedule": {
+    "title": "排班管理",
+    "viewSchedule": "排班表",
+    "addSchedule": "新增排班",
+    "applyShift": "申请调班",
+    "shiftType": "班次类型",
+    "weekDay": "星期",
+    "checkInStart": "上班开始",
+    "checkInEnd": "上班结束",
+    "checkOutStart": "下班开始",
+    "checkOutEnd": "下班结束",
+    "originalDate": "原班日期",
+    "targetDate": "目标日期",
+    "thisWeek": "本周"
+  },
+  "shiftType": {
+    "morning": "上午班",
+    "afternoon": "下午班",
+    "full_day": "全天班",
+    "off": "休息"
+  },
+  "settings": {
+    "title": "系统设置",
+    "basicConfig": "基础参数",
+    "holidayConfig": "节假日配置",
+    "addHoliday": "新增节假日",
+    "checkInStart": "上班开始时间",
+    "checkInEnd": "上班结束时间",
+    "checkOutStart": "下班开始时间",
+    "checkOutEnd": "下班结束时间",
+    "locationRadius": "打卡范围半径（米）",
+    "lateGraceMinutes": "迟到宽限（分钟）",
+    "maxMakeupPerMonth": "每月补卡上限",
+    "makeupWindowDays": "补卡窗口天数",
+    "locationLat": "打卡地点纬度",
+    "locationLng": "打卡地点经度",
+    "holiday": {
+      "date": "日期",
+      "name": "名称",
+      "type": "类型",
+      "workday": "上班",
+      "offday": "放假"
+    }
+  }
+}

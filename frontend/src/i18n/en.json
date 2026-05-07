@@ -1,0 +1,202 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "reset": "Reset",
+    "confirm": "Confirm",
+    "success": "Success",
+    "error": "Error",
+    "loading": "Loading...",
+    "noData": "No Data",
+    "actions": "Actions",
+    "remark": "Remark"
+  },
+  "app": { "title": "Attendance System" },
+  "menu": {
+    "employee": "Employee",
+    "attendance": "Attendance",
+    "leave": "Leave",
+    "approval": "Approval",
+    "report": "Report",
+    "schedule": "Schedule",
+    "settings": "Settings"
+  },
+  "employee": {
+    "title": "Employee Management",
+    "addEmployee": "Add Employee",
+    "editEmployee": "Edit Employee",
+    "deleteConfirm": "Confirm delete this employee?",
+    "employeeId": "Employee ID",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "department": "Department",
+    "position": "Position",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "left": "Left",
+    "employeeType": "Employee Type",
+    "role": "System Role",
+    "filterDept": "Filter by Dept",
+    "filterStatus": "Filter by Status"
+  },
+  "employeeType": {
+    "leader": "Leader",
+    "sales": "Sales",
+    "rd_admin": "RD/Admin"
+  },
+  "systemRole": {
+    "super_admin": "Super Admin",
+    "dept_admin": "Dept Admin",
+    "employee": "Employee"
+  },
+  "employeeStatus": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "left": "Left"
+  },
+  "attendance": {
+    "title": "Attendance",
+    "clockIn": "Clock In",
+    "clockOut": "Clock Out",
+    "clockInRecord": "Clock In Record",
+    "clockOutRecord": "Clock Out Record",
+    "clockInSuccess": "Clock in successful",
+    "clockOutSuccess": "Clock out successful",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "normal": "Normal",
+    "late": "Late",
+    "leaveEarly": "Leave Early",
+    "absent": "Absent",
+    "location": "Location",
+    "alreadyClockIn": "Already clocked in today. Clock again?",
+    "alreadyClockOut": "Already clocked out today. Clock again?",
+    "pleaseClockInFirst": "Please clock in first",
+    "notClockIn": "Not Clocked In",
+    "notClockOut": "Not Clocked Out",
+    "clockedIn": "Clocked In",
+    "clockedOut": "Clocked Out",
+    "todayStatus": "Clock In Status",
+    "clockOutStatus": "Clock Out Status",
+    "leaveBalance": "Leave Balance",
+    "monthSummary": "Monthly Summary",
+    "totalWorkDays": "Total Work Days",
+    "normalDays": "Normal",
+    "lateDays": "Late",
+    "earlyLeaveDays": "Early Leave",
+    "absentDays": "Absent",
+    "leaveDays": "Leave"
+  },
+  "attendanceStatus": {
+    "normal": "Normal",
+    "late": "Late",
+    "early": "Early",
+    "absent": "Absent"
+  },
+  "leave": {
+    "title": "Leave Request",
+    "addLeave": "Apply Leave",
+    "leaveType": "Leave Type",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "dateRange": "Leave Period",
+    "duration": "Duration",
+    "reason": "Reason",
+    "annual": "Annual Leave",
+    "sick": "Sick Leave",
+    "personal": "Personal Leave",
+    "other": "Other",
+    "makeup": "Makeup Request",
+    "applyMakeup": "Apply Makeup"
+  },
+  "leaveType": {
+    "年假": "Annual Leave",
+    "病假": "Sick Leave",
+    "事假": "Personal Leave",
+    "其他": "Other"
+  },
+  "makeup": {
+    "checkTime": "Makeup Clock Time",
+    "checkTimeTip": "Fill in the actual clock time to makeup (within 3 days)"
+  },
+  "approval": {
+    "title": "Approval Management",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "type": "Type",
+    "detail": "Detail",
+    "createTime": "Applied At",
+    "applicant": "Applicant",
+    "remark": "Remark",
+    "remarkPlaceholder": "Optional. Add approval remark."
+  },
+  "approvalStatus": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled"
+  },
+  "report": {
+    "title": "Statistics Report",
+    "export": "Export Excel",
+    "summary": "Attendance Summary",
+    "personal": "Personal Stats",
+    "department": "Department Stats",
+    "all": "All Stats",
+    "totalEmployees": "Total Employees"
+  },
+  "schedule": {
+    "title": "Schedule Management",
+    "viewSchedule": "Schedule",
+    "addSchedule": "Add Schedule",
+    "applyShift": "Apply Shift",
+    "shiftType": "Shift Type",
+    "weekDay": "Weekday",
+    "checkInStart": "Check-in Start",
+    "checkInEnd": "Check-in End",
+    "checkOutStart": "Check-out Start",
+    "checkOutEnd": "Check-out End",
+    "originalDate": "Original Date",
+    "targetDate": "Target Date",
+    "thisWeek": "This Week"
+  },
+  "shiftType": {
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "full_day": "Full Day",
+    "off": "Off"
+  },
+  "settings": {
+    "title": "System Settings",
+    "basicConfig": "Basic Config",
+    "holidayConfig": "Holiday Config",
+    "addHoliday": "Add Holiday",
+    "checkInStart": "Check-in Start Time",
+    "checkInEnd": "Check-in End Time",
+    "checkOutStart": "Check-out Start Time",
+    "checkOutEnd": "Check-out End Time",
+    "locationRadius": "Location Radius (m)",
+    "lateGraceMinutes": "Late Grace (min)",
+    "maxMakeupPerMonth": "Max Makeup/Month",
+    "makeupWindowDays": "Makeup Window (days)",
+    "locationLat": "Location Lat",
+    "locationLng": "Location Lng",
+    "holiday": {
+      "date": "Date",
+      "name": "Name",
+      "type": "Type",
+      "workday": "Workday",
+      "offday": "Holiday"
+    }
+  }
+}

@@ -1,0 +1,348 @@
+# ============================================================
+# GeoPunch 考勤系统 - Kubernetes 部署清单 (单虚拟机版)
+# ============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: geopunch
+  labels:
+    app.kubernetes.io/name: geopunch
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geopunch-config
+  namespace: geopunch
+data:
+  DATABASE_HOST: "localhost"
+  DATABASE_PORT: "3306"
+  DATABASE_NAME: "geopunch"
+  DATABASE_USER: "geopunch"
+  REDIS_HOST: "localhost"
+  REDIS_PORT: "6379"
+  MINIO_ENDPOINT: "localhost:9000"
+  MINIO_BUCKET: "geopunch-photos"
+  NODE_ENV: "development"
+  TZ: "Asia/Shanghai"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: geopunch-secrets
+  namespace: geopunch
+type: Opaque
+stringData:
+  DATABASE_PASSWORD: "geopunch123"
+  JWT_SECRET: "geopunch-jwt-secret-2026"
+  JWT_REFRESH_SECRET: "geopunch-refresh-secret-2026"
+  MINIO_ROOT_USER: "minioadmin"
+  MINIO_ROOT_PASSWORD: "minioadmin123"
+
+---
+# ============================================================
+# MySQL 8.0
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geopunch-mysql
+  namespace: geopunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geopunch-mysql
+  template:
+    metadata:
+      labels:
+        app: geopunch-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpassword"
+            - name: MYSQL_DATABASE
+              value: "geopunch"
+            - name: MYSQL_USER
+              value: "geopunch"
+            - name: MYSQL_PASSWORD
+              value: "geopunch123"
+          args:
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+            - --max_connections=200
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopunch-mysql
+  namespace: geopunch
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30336
+  selector:
+    app: geopunch-mysql
+
+---
+# ============================================================
+# Redis 7
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geopunch-redis
+  namespace: geopunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geopunch-redis
+  template:
+    metadata:
+      labels:
+        app: geopunch-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+          args:
+            - --maxmemory=256mb
+            - --maxmemory-policy=allkeys-lru
+          resources:
+            limits:
+              cpu: 200m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopunch-redis
+  namespace: geopunch
+spec:
+  type: NodePort
+  ports:
+    - port: 6379
+      targetPort: 6379
+      nodePort: 30337
+  selector:
+    app: geopunch-redis
+
+---
+# ============================================================
+# MinIO (照片存储)
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geopunch-minio
+  namespace: geopunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geopunch-minio
+  template:
+    metadata:
+      labels:
+        app: geopunch-minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          ports:
+            - containerPort: 9000
+              name: api
+            - containerPort: 9001
+              name: console
+          env:
+            - name: MINIO_ROOT_USER
+              value: "minioadmin"
+            - name: MINIO_ROOT_PASSWORD
+              value: "minioadmin123"
+          args:
+            - server
+            - /data
+            - --console-address
+            - ":9001"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopunch-minio
+  namespace: geopunch
+spec:
+  type: NodePort
+  ports:
+    - port: 9000
+      targetPort: 9000
+      nodePort: 30390
+    - port: 9001
+      targetPort: 9001
+      nodePort: 30391
+  selector:
+    app: geopunch-minio
+
+---
+# ============================================================
+# NestJS 后端 API
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geopunch-api
+  namespace: geopunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geopunch-api
+  template:
+    metadata:
+      labels:
+        app: geopunch-api
+    spec:
+      containers:
+        - name: api
+          image: geopunch-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: geopunch-config
+            - secretRef:
+                name: geopunch-secrets
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopunch-api
+  namespace: geopunch
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30300
+  selector:
+    app: geopunch-api
+
+---
+# ============================================================
+# React 前端 Web
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geopunch-frontend
+  namespace: geopunch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geopunch-frontend
+  template:
+    metadata:
+      labels:
+        app: geopunch-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: geopunch-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5173
+              name: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geopunch-frontend
+  namespace: geopunch
+spec:
+  type: NodePort
+  ports:
+    - port: 5173
+      targetPort: 5173
+      nodePort: 30517
+  selector:
+    app: geopunch-frontend
+
+---
+# ============================================================
+# Ingress (可选)
+# ============================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: geopunch-ingress
+  namespace: geopunch
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: geopunch.local
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: geopunch-api
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: geopunch-frontend
+                port:
+                  number: 5173
