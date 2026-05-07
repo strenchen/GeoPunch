@@ -20,7 +20,7 @@ async function bootstrap() {
 
   // CORS 配置
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://8.133.202.164:8888',
     credentials: true,
   });
 

@@ -3,17 +3,30 @@ import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/appStore';
+import { authService } from '../../services/api';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { setCurrentUser } = useAppStore();
+  const { setToken, setCurrentUser } = useAppStore();
 
-  const handleSubmit = (values: { username: string; password: string }) => {
-    if (values.username && values.password) {
-      setCurrentUser({ id: 1, name: values.username });
+  const handleSubmit = async (values: { username: string; password: string }) => {
+    try {
+      const res = await authService.login({ 
+        employeeNumber: values.username, 
+        password: values.password 
+      });
+      const { accessToken, employee } = res.data;
+      setToken(accessToken);
+      setCurrentUser({ 
+        id: employee.id as number, 
+        name: employee.name, 
+        role: employee.role 
+      });
       message.success(t('common.success'));
       navigate('/employee');
+    } catch (err) {
+      message.error(t('common.error'));
     }
   };
 

@@ -4,7 +4,13 @@ import type {
   SystemConfig, Holiday, LeaveBalance
 } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = '/api/v1';
+
+interface ApiResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+}
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const token = localStorage.getItem('token');
@@ -16,8 +22,17 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     headers: { ...headers, ...options?.headers }
   });
   if (!response.ok) throw new Error(`API Error: ${response.status}`);
-  return response.json();
+  const json: ApiResponse<T> = await response.json();
+  return json.data;
 }
+
+// ============ 认证服务 ============
+export const authService = {
+  login: (data: { employeeNumber: string; password: string }) =>
+    request<{ code: number; message: string; data: { accessToken: string; refreshToken: string; expiresIn: number; employee: Employee } }>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
+  getProfile: () => request<Employee>('/auth/profile'),
+  refreshToken: () => request<{ token: string }>('/auth/refresh', { method: 'POST' }),
+};
 
 // ============ 员工服务 ============
 export const employeeService = {

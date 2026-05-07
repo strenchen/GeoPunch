@@ -18,12 +18,12 @@ import './i18n';
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { locale } = useAppStore();
+  const { locale, token } = useAppStore();
   return (
     <ConfigProvider locale={locale === 'zh' ? zhCN : enUS}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<MainLayout />}>
+        <Route path="/login" element={token ? <Navigate to="/employee" replace /> : <LoginPage />} />
+        <Route path="/" element={token ? <MainLayout /> : <Navigate to="/login" replace />}>
           <Route index element={<Navigate to="/employee" replace />} />
           <Route path="employee" element={<EmployeePage />} />
           <Route path="attendance" element={<AttendancePage />} />
