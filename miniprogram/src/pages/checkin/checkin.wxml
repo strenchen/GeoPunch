@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 位置信息 -->
+  <view class="location-card">
+    <view class="location-header">
+      <text class="location-title">您当前的位置</text>
+    </view>
+    <view class="location-info">
+      <image class="location-icon" src="/assets/location.png" />
+      <view class="location-detail">
+        <text class="address">{{address || '正在获取位置...'}}</text>
+        <text class="distance" wx:if="{{distance !== null}}">距离公司: {{distance}}米</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地图显示 -->
+  <view class="map-card">
+    <map
+      id="checkinMap"
+      class="map"
+      latitude="{{latitude}}"
+      longitude="{{longitude}}"
+      markers="{{markers}}"
+      scale="16"
+      show-location
+    ></map>
+  </view>
+
+  <!-- 打卡状态 -->
+  <view class="status-card">
+    <view class="status-row">
+      <text class="status-label">允许打卡范围:</text>
+      <text class="status-value">{{radius}}米</text>
+    </view>
+    <view class="status-row">
+      <text class="status-label">当前状态:</text>
+      <text class="status-value {{inRange ? 'success' : 'warning'}}">
+        {{inRange ? '✓ 在范围内' : '✗ 不在范围内'}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 拍照开关 -->
+  <view class="photo-card">
+    <switch bindchange="onPhotoSwitch" checked="{{enablePhoto}}" />
+    <text class="photo-label">拍照打卡（可选）</text>
+  </view>
+
+  <!-- 确认打卡按钮 -->
+  <button
+    class="confirm-btn {{inRange ? 'active' : 'disabled'}}"
+    bindtap="onConfirmCheckin"
+    disabled="{{!inRange || isChecking}}"
+  >
+    <text>{{isChecking ? '打卡中...' : '确认打卡'}}</text>
+  </button>
+
+  <!-- 打卡结果 -->
+  <view class="result-card" wx:if="{{result}}">
+    <text class="result-text {{result.status}}">{{result.message}}</text>
+  </view>
+</view>

@@ -10,20 +10,23 @@ export class EmployeeService {
   async findAll(params: {
     page?: number;
     pageSize?: number;
-    department?: string;
+    departmentId?: number;
     keyword?: string;
     isActive?: boolean;
+    employeeType?: string;
   }) {
-    const { page = 1, pageSize = 20, department, keyword, isActive } = params;
+    const { page = 1, pageSize = 20, departmentId, keyword, isActive, employeeType } = params;
     const skip = (page - 1) * pageSize;
 
     const where: any = {};
-    if (department) where.department = department;
+    if (departmentId) where.departmentId = departmentId;
     if (isActive !== undefined) where.isActive = isActive;
+    if (employeeType) where.employeeType = employeeType;
     if (keyword) {
       where.OR = [
         { name: { contains: keyword } },
         { employeeNumber: { contains: keyword } },
+        { phone: { contains: keyword } },
       ];
     }
 
@@ -36,12 +39,14 @@ export class EmployeeService {
           id: true,
           employeeNumber: true,
           name: true,
-          department: true,
+          phone: true,
           position: true,
           role: true,
           isActive: true,
           hireDate: true,
           createdAt: true,
+          department: { select: { id: true, name: true } },
+          employeeType: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -63,7 +68,6 @@ export class EmployeeService {
 
   // 获取单个员工
   async findOne(id: number, requesterId: number, requesterRole: string) {
-    // 检查权限：员工只能查看自己，管理员可以查看全部
     if (requesterRole !== 'ADMIN' && requesterRole !== 'MANAGER' && requesterId !== id) {
       throw new ForbiddenException({ code: 10003, message: '无权查看他人信息' });
     }
@@ -74,12 +78,14 @@ export class EmployeeService {
         id: true,
         employeeNumber: true,
         name: true,
-        department: true,
+        phone: true,
         position: true,
         role: true,
         isActive: true,
         hireDate: true,
         createdAt: true,
+        department: { select: { id: true, name: true } },
+        employeeType: true,
       },
     });
 
@@ -97,9 +103,11 @@ export class EmployeeService {
     employeeNumber: string;
     name: string;
     password: string;
-    department: string;
+    departmentId: number;
     position?: string;
-    role?: string;
+    roleId: number;
+    employeeType?: string;
+    phone?: string;
     hireDate?: Date;
   }) {
     const existing = await this.prisma.employee.findUnique({
@@ -108,33 +116,41 @@ export class EmployeeService {
 
     if (existing) throw new BadRequestException({ code: 10005, message: '工号已存在' });
 
+    // 验证部门存在
+    const department = await this.prisma.department.findUnique({ where: { id: data.departmentId } });
+    if (!department) throw new BadRequestException({ code: 10004, message: '部门不存在' });
+
+    // 验证角色存在
+    const role = await this.prisma.role.findUnique({ where: { id: data.roleId } });
+    if (!role) throw new BadRequestException({ code: 10004, message: '角色不存在' });
+
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const createData: any = {
-      employeeNumber: data.employeeNumber,
-      name: data.name,
-      passwordHash,
-      department: data.department,
-      position: data.position,
-      role: (data.role || 'EMPLOYEE') as any,
-      hireDate: data.hireDate || new Date(),
-    };
-    delete createData.phone;
-    delete createData.email;
     const employee = await this.prisma.employee.create({
-      data: createData,
+      data: {
+        employeeNumber: data.employeeNumber,
+        name: data.name,
+        passwordHash,
+        departmentId: data.departmentId,
+        position: data.position,
+        roleId: data.roleId,
+        employeeType: (data.employeeType as any) || 'RD_ADMIN',
+        phone: data.phone,
+        hireDate: data.hireDate || new Date(),
+      },
       select: {
         id: true,
         employeeNumber: true,
         name: true,
-        department: true,
+        phone: true,
         position: true,
-        role: true,
+        role: { select: { id: true, name: true } },
         isActive: true,
+        department: { select: { id: true, name: true } },
+        employeeType: true,
       },
     });
 
-    // 记录操作日志
     await this.logOperation(0, 'EMPLOYEE', 'CREATE', 'employee', employee.id, `创建员工: ${employee.name}`);
 
     return {
@@ -149,14 +165,15 @@ export class EmployeeService {
     id: number, 
     data: Partial<{
       name: string;
-      department: string;
+      departmentId: number;
       position: string;
-      role: string;
+      roleId: number;
+      employeeType: string;
+      phone: string;
     }>,
     requesterId: number,
     requesterRole: string,
   ) {
-    // 检查权限
     if (requesterRole !== 'ADMIN' && requesterRole !== 'MANAGER') {
       throw new ForbiddenException({ code: 10003, message: '无权修改员工信息' });
     }
@@ -164,15 +181,18 @@ export class EmployeeService {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
     if (!employee) throw new NotFoundException({ code: 10004, message: '员工不存在' });
 
-    // ADMIN 角色才能修改 role
-    if (data.role && requesterRole !== 'ADMIN') {
-      delete data.role;
+    // ADMIN 角色才能修改 role 和 employeeType
+    if (data.roleId && requesterRole !== 'ADMIN') {
+      delete data.roleId;
+    }
+    if (data.employeeType && requesterRole !== 'ADMIN') {
+      delete data.employeeType;
     }
 
     // 过滤不允许更新的字段
-    delete (data as any).phone;
     delete (data as any).passwordHash;
     delete (data as any).hireDate;
+    delete (data as any).employeeNumber;
 
     const updated = await this.prisma.employee.update({
       where: { id },
@@ -181,10 +201,12 @@ export class EmployeeService {
         id: true,
         employeeNumber: true,
         name: true,
-        department: true,
+        phone: true,
         position: true,
-        role: true,
+        role: { select: { id: true, name: true } },
         isActive: true,
+        department: { select: { id: true, name: true } },
+        employeeType: true,
       },
     });
 
@@ -242,7 +264,6 @@ export class EmployeeService {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
     if (!employee) throw new NotFoundException({ code: 10004, message: '员工不存在' });
 
-    // 软删除
     await this.prisma.employee.update({
       where: { id },
       data: { isActive: false },
@@ -255,7 +276,6 @@ export class EmployeeService {
 
   // 修改密码
   async changePassword(id: number, oldPassword: string, newPassword: string, requesterId: number, requesterRole: string) {
-    // 只有本人或 ADMIN 可以修改密码
     if (requesterId !== id && requesterRole !== 'ADMIN') {
       throw new ForbiddenException({ code: 10003, message: '无权修改他人密码' });
     }
@@ -263,7 +283,6 @@ export class EmployeeService {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
     if (!employee) throw new NotFoundException({ code: 10004, message: '员工不存在' });
 
-    // 非 ADMIN 用户需要验证原密码
     if (requesterRole !== 'ADMIN') {
       const isValid = await bcrypt.compare(oldPassword, employee.passwordHash);
       if (!isValid) throw new BadRequestException({ code: 10001, message: '原密码错误' });
@@ -281,7 +300,7 @@ export class EmployeeService {
   }
 
   // 分配角色
-  async assignRole(id: number, role: string, requesterId: number, requesterRole: string) {
+  async assignRole(id: number, roleId: number, requesterId: number, requesterRole: string) {
     if (requesterRole !== 'ADMIN') {
       throw new ForbiddenException({ code: 10003, message: '只有超级管理员可以分配角色' });
     }
@@ -291,11 +310,11 @@ export class EmployeeService {
 
     const updated = await this.prisma.employee.update({
       where: { id },
-      data: { role: role as any },
-      select: { id: true, name: true, role: true },
+      data: { roleId: roleId as any },
+      select: { id: true, name: true, role: { select: { id: true, name: true } } },
     });
 
-    await this.logOperation(requesterId, 'EMPLOYEE', 'ASSIGN_ROLE', 'employee', id, `分配角色: ${role}`);
+    await this.logOperation(requesterId, 'EMPLOYEE', 'ASSIGN_ROLE', 'employee', id, `分配角色: ${roleId}`);
 
     return {
       code: 0,
@@ -306,15 +325,13 @@ export class EmployeeService {
 
   // 获取部门列表
   async getDepartments() {
-    const departments = await this.prisma.employee.findMany({
-      where: { isActive: true },
-      select: { department: true },
-      distinct: ['department'],
+    const departments = await this.prisma.department.findMany({
+      orderBy: { name: 'asc' },
     });
     return { 
       code: 0, 
       message: 'success', 
-      data: departments.map(d => d.department) 
+      data: departments.map(d => ({ id: d.id, name: d.name, parentId: d.parentId })) 
     };
   }
 
@@ -324,9 +341,11 @@ export class EmployeeService {
       employeeNumber: string;
       name: string;
       password: string;
-      department: string;
+      departmentId: number;
       position?: string;
-      role?: string;
+      roleId: number;
+      employeeType?: string;
+      phone?: string;
     }>,
     requesterId: number,
     requesterRole: string,
@@ -353,9 +372,11 @@ export class EmployeeService {
             employeeNumber: emp.employeeNumber,
             name: emp.name,
             passwordHash,
-            department: emp.department,
+            departmentId: emp.departmentId,
             position: emp.position,
-            role: (emp.role || 'EMPLOYEE') as any,
+            roleId: emp.roleId,
+            employeeType: (emp.employeeType as any) || 'RD_ADMIN',
+            phone: emp.phone,
             hireDate: new Date(),
           },
           select: { id: true, employeeNumber: true, name: true },

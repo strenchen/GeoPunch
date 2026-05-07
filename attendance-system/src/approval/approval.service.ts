@@ -522,15 +522,14 @@ export class ApprovalService {
     targetId: number,
     detail: string,
   ) {
-    await this.prisma.operationLog.create({
-      data: {
-        operatorId,
-        module,
-        action,
-        targetType,
-        targetId,
-        detail,
-      },
-    });
+    try {
+      // 使用原始SQL避免Prisma客户端问题
+      await this.prisma.$executeRaw`
+        INSERT INTO operation_log (operator_id, module, action, target_type, target_id, detail, created_at)
+        VALUES (${operatorId}, ${module}, ${action}, ${targetType}, ${targetId}, ${detail}, NOW())
+      `;
+    } catch (err) {
+      console.error('日志记录失败:', err);
+    }
   }
 }

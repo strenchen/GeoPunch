@@ -26,7 +26,14 @@ export default function SchedulePage() {
     queryFn: () => scheduleService.list({
       start_date: weekStart.format('YYYY-MM-DD'),
       end_date: weekStart.add(6, 'day').format('YYYY-MM-DD')
-    })
+    }).then((list: any[]) => list.map((s: any) => ({
+      ...s,
+      employee_name: s.employee?.name,
+      schedule_date: s.scheduleDate?.slice(0, 10),
+      shift_type: s.shiftType?.toLowerCase(),
+      check_in_start: s.startTime,
+      check_in_end: s.endTime,
+    })))
   });
 
   const createMutation = useMutation({

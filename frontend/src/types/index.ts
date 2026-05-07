@@ -20,11 +20,8 @@ export type LeaveType = '事假' | '病假' | '年假' | '其他';
 export interface LeaveBalance {
   employeeId: number;
   annual: { total: number; used: number; remaining: number };
-  annualLeave: { total: number; used: number; remaining: number };
   sick: { total: number; used: number; remaining: number };
-  sickLeave: { total: number; used: number; remaining: number };
   personal: { total: number; used: number; remaining: number };
-  personalLeave: { total: number; used: number; remaining: number };
 }
 
 // === 员工 ===
@@ -107,16 +104,27 @@ export interface ApprovalItem {
 
 // === 考勤统计 ===
 export interface AttendanceSummary {
-  employee_id: number;
-  employee_name: string;
-  department_name: string;
-  year_month: string;
-  total_work_days: number;
-  normal_days: number;
-  late_days: number;
-  early_leave_days: number;
-  absent_days: number;
-  leave_days: number;
+  employee_id?: number;
+  employee_name?: string;
+  department_name?: string;
+  year_month?: string;
+  total_work_days?: number;
+  normal_days?: number;
+  late_days?: number;
+  early_leave_days?: number;
+  absent_days?: number;
+  leave_days?: number;
+  // 后端实际返回字段（camelCase）
+  employee?: { id: number; name: string; employeeNumber: string; department: string; position?: string };
+  normalDays?: number;
+  lateDays?: number;
+  earlyLeaveDays?: number;
+  absentDays?: number;
+  makeupDays?: number;
+  workedDays?: number;
+  attendanceRate?: string;
+  checkInCount?: number;
+  checkOutCount?: number;
 }
 
 // === 排班 ===

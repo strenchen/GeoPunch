@@ -1,6 +1,7 @@
 const config = {
   projectName: 'GeoPunch',
   date: '2026-05-07',
+  framework: 'vue3',
   designWidth: 750,
   deviceRatio: {
     640: 2.34 / 2,
@@ -10,6 +11,7 @@ const config = {
   sourceRoot: 'src',
   outputRoot: 'dist',
   plugins: [
+    ['@tarojs/plugin-framework-vue3'],
     ['@tarojs/plugin-platform-weapp']
   ],
   defineConstants: {

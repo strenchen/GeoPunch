@@ -1,0 +1,55 @@
+<view class="container">
+  <!-- 月份选择 -->
+  <view class="month-selector">
+    <view class="month-btn" bindtap="prevMonth">
+      <text>◀</text>
+    </view>
+    <view class="month-display">
+      <text class="month-text">{{year}}年{{month}}月</text>
+    </view>
+    <view class="month-btn" bindtap="nextMonth">
+      <text>▶</text>
+    </view>
+  </view>
+
+  <!-- 打卡记录列表 -->
+  <view class="records-list">
+    <block wx:for="{{records}}" wx:key="id">
+      <view class="record-card">
+        <view class="record-date">
+          <text class="date-text">{{item.dateStr}}</text>
+          <text class="weekday-text">{{item.weekday}}</text>
+        </view>
+        <view class="record-detail">
+          <view class="record-row">
+            <text class="record-label">上班</text>
+            <text class="record-time {{item.morningStatus}}">{{item.morningTime || '--:--'}}</text>
+            <view class="status-tag {{item.morningStatus}}">
+              <text>{{item.morningStatusText}}</text>
+            </view>
+          </view>
+          <view class="record-row">
+            <text class="record-label">下班</text>
+            <text class="record-time {{item.eveningStatus}}">{{item.eveningTime || '--:--'}}</text>
+            <view class="status-tag {{item.eveningStatus}}">
+              <text>{{item.eveningStatusText}}</text>
+            </view>
+          </view>
+          <view class="record-location" wx:if="{{item.address}}">
+            <image class="location-icon" src="/assets/location.png" />
+            <text class="location-text">{{item.address}}</text>
+          </view>
+        </view>
+        <!-- 缺勤时可申请补卡 -->
+        <view class="apply-makeup" wx:if="{{item.canApplyMakeup}}" bindtap="goToMakeup">
+          <text>申请补卡</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{records.length === 0}}">
+      <text>暂无打卡记录</text>
+    </view>
+  </view>
+</view>

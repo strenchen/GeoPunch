@@ -19,6 +19,10 @@ export class AuthService {
   async login(dto: LoginDto) {
     const employee = await this.prisma.employee.findUnique({
       where: { employeeNumber: dto.employeeNumber },
+      include: {
+        department: { select: { id: true, name: true } },
+        role: { select: { id: true, name: true } },
+      },
     });
 
     if (!employee) {
@@ -34,28 +38,24 @@ export class AuthService {
       throw new UnauthorizedException({ code: 10002, message: '账号已被禁用' });
     }
 
-    // 生成 jti (JWT ID) 用于 token 撤销
     const jti = uuidv4();
     const refreshJti = uuidv4();
 
-    // 生成 access token 和 refresh token
     const payload = { 
       sub: employee.id, 
       employeeNumber: employee.employeeNumber, 
-      role: employee.role,
+      role: employee.role.name,
       jti,
     };
     const accessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
     const refreshToken = uuidv4();
 
-    // Refresh token 存入 Redis，7天过期 (refreshTokenTTL=7天)
     await this.redis.set(
       `refresh:${refreshToken}`, 
       JSON.stringify({ employeeId: employee.id, jti: refreshJti }), 
-      60 * 60 * 24 * 7 // 7 days
+      60 * 60 * 24 * 7
     );
 
-    // 记录登录会话
     await this.redis.set(`session:${employee.id}:${jti}`, accessToken, 60 * 60 * 24);
 
     return {
@@ -69,8 +69,9 @@ export class AuthService {
           id: employee.id,
           employeeNumber: employee.employeeNumber,
           name: employee.name,
-          role: employee.role,
-          department: employee.department,
+          role: employee.role.name,
+          department: employee.department.name,
+          employeeType: employee.employeeType,
         },
       },
     };
@@ -88,22 +89,23 @@ export class AuthService {
 
     const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },
+      include: {
+        role: { select: { name: true } },
+      },
     });
 
     if (!employee || !employee.isActive) {
       throw new UnauthorizedException({ code: 10002, message: '账号无效或已禁用' });
     }
 
-    // 删除旧 refresh token (只能使用一次)
     await this.redis.del(`refresh:${refreshToken}`);
 
-    // 生成新 token
     const jti = uuidv4();
     const newRefreshJti = uuidv4();
     const payload = { 
       sub: employee.id, 
       employeeNumber: employee.employeeNumber, 
-      role: employee.role,
+      role: employee.role.name,
       jti,
     };
     const newAccessToken = this.jwtService.sign(payload, { expiresIn: '1h' });
@@ -112,7 +114,7 @@ export class AuthService {
     await this.redis.set(
       `refresh:${newRefreshToken}`, 
       JSON.stringify({ employeeId: employee.id, jti: newRefreshJti }), 
-      60 * 60 * 24 * 7 // 7 days
+      60 * 60 * 24 * 7
     );
     await this.redis.set(`session:${employee.id}:${jti}`, newAccessToken, 60 * 60 * 24);
 
@@ -144,10 +146,18 @@ export class AuthService {
         employeeNumber: dto.employeeNumber,
         name: dto.name,
         passwordHash,
-        department: dto.department,
+        departmentId: dto.departmentId || 1,
         position: dto.position,
-        role: (dto.role || 'EMPLOYEE') as any,
+        roleId: dto.roleId || 3,
+        employeeType: (dto.employeeType as any) || 'RD_ADMIN',
+        phone: dto.phone,
         hireDate: dto.hireDate ? new Date(dto.hireDate) : new Date(),
+      },
+      select: {
+        id: true,
+        employeeNumber: true,
+        name: true,
+        role: { select: { name: true } },
       },
     });
 
@@ -158,7 +168,7 @@ export class AuthService {
         id: employee.id,
         employeeNumber: employee.employeeNumber,
         name: employee.name,
-        role: employee.role,
+        role: employee.role.name,
       },
     };
   }
@@ -170,14 +180,12 @@ export class AuthService {
     });
 
     if (!employee) {
-      // 安全考虑，不暴露用户是否存在
       return { code: 0, message: '如果账号存在，重置链接已发送', data: null };
     }
 
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    await this.redis.set(`pwd:reset:${employeeNumber}`, resetCode, 300); // 5分钟有效
+    await this.redis.set(`pwd:reset:${employeeNumber}`, resetCode, 300);
 
-    // TODO: 实际应发送邮件/短信，这里仅日志输出
     console.log(`[密码重置码] ${employeeNumber}: ${resetCode}`);
 
     return { code: 0, message: '如果账号存在，重置码已发送', data: null };
@@ -199,28 +207,24 @@ export class AuthService {
 
     await this.redis.del(`pwd:reset:${employeeNumber}`);
     
-    // 使所有活跃会话失效 (通过 jti 黑名单)
     await this.redis.set(`blacklist:employee:${employeeNumber}`, '1', 60 * 60 * 24);
 
     return { code: 0, message: '密码重置成功', data: null };
   }
 
-  // 登出 - 将 token 加入黑名单
+  // 登出
   async logout(employeeId: number, accessToken: string, refreshToken: string) {
-    // 将 refresh token 加入黑名单
     await this.redis.set(`blacklist:refresh:${refreshToken}`, '1', 60 * 60 * 24 * 7);
     
-    // 将 access token jti 加入黑名单
     try {
       const decoded = this.jwtService.verify(accessToken);
       if (decoded.jti) {
-        await this.redis.set(`blacklist:token:${decoded.jti}`, '1', 3600); // access token 剩余有效期
+        await this.redis.set(`blacklist:token:${decoded.jti}`, '1', 3600);
       }
     } catch (e) {
-      // token 已过期，无需加入黑名单
+      // token 已过期
     }
     
-    // 删除会话
     await this.redis.del(`refresh:${refreshToken}`);
     
     return { code: 0, message: '登出成功', data: null };

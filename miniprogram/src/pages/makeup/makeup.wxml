@@ -1,0 +1,64 @@
+<view class="container">
+  <!-- 补卡说明 -->
+  <view class="tips-card">
+    <text class="tips-title">补卡说明</text>
+    <text class="tips-text">• 仅可补近3日内的打卡记录</text>
+    <text class="tips-text">• 每月补卡次数上限3次</text>
+    <text class="tips-text">• 需说明补卡原因并等待审批</text>
+  </view>
+
+  <!-- 本月补卡次数 -->
+  <view class="quota-card">
+    <text class="quota-label">本月补卡次数</text>
+    <view class="quota-progress">
+      <view class="quota-bar">
+        <view class="quota-fill" style="width: {{usedCount / maxCount * 100}}%"></view>
+      </view>
+      <text class="quota-text">{{usedCount}}/{{maxCount}}</text>
+    </view>
+  </view>
+
+  <!-- 申请表单 -->
+  <view class="form-card">
+    <view class="form-item">
+      <text class="form-label">补卡类型</text>
+      <picker bindchange="onTypeChange" value="{{typeIndex}}" range="{{types}}">
+        <view class="picker-value">{{types[typeIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">补卡日期</text>
+      <picker mode="date" bindchange="onDateChange" end="{{maxDate}}">
+        <view class="picker-value">{{targetDate || '请选择'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">补卡时间</text>
+      <input class="form-input" type="time" placeholder="请输入补卡时间（如 09:00）" bindinput="onTimeInput" value="{{checkTime}}" />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">补卡原因</text>
+      <textarea class="form-textarea" placeholder="请输入补卡原因" bindinput="onReasonInput" value="{{reason}}" />
+    </view>
+
+    <button class="submit-btn" bindtap="submitMakeup" disabled="{{!canSubmit}}">提交申请</button>
+  </view>
+
+  <!-- 补卡记录 -->
+  <view class="history-title">补卡记录</view>
+  <view class="history-list">
+    <block wx:for="{{historyList}}" wx:key="id">
+      <view class="history-card">
+        <view class="history-date">{{item.dateStr}}</view>
+        <view class="history-type">{{item.typeText}}</view>
+        <view class="history-status {{item.status}}">{{item.statusText}}</view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{historyList.length === 0}}">
+      <text>暂无补卡记录</text>
+    </view>
+  </view>
+</view>

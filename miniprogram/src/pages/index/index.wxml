@@ -1,0 +1,64 @@
+<view class="container">
+  <!-- 用户信息栏 -->
+  <view class="user-bar">
+    <image class="avatar" src="/assets/avatar.png" mode="aspectFill" />
+    <view class="user-info">
+      <text class="username">{{userInfo.name}}</text>
+      <text class="dept">{{userInfo.department}} | {{employeeTypeText}}</text>
+    </view>
+  </view>
+
+  <!-- 日期显示 -->
+  <view class="date-card">
+    <text class="date">{{currentDate}}</text>
+    <text class="weekday">{{weekday}}</text>
+  </view>
+
+  <!-- 打卡主卡片 -->
+  <view class="checkin-card">
+    <view class="checkin-btn {{checkinBtnClass}}" bindtap="onCheckinTap">
+      <text class="checkin-time">{{checkinTime || '--:--'}}</text>
+      <text class="checkin-label">{{checkinLabel}}</text>
+    </view>
+
+    <view class="checkin-detail">
+      <view class="detail-item">
+        <text class="detail-label">上班</text>
+        <text class="detail-value {{morningStatusClass}}">{{morningTime || '--:--'}}</text>
+      </view>
+      <view class="divider"></view>
+      <view class="detail-item">
+        <text class="detail-label">下班</text>
+        <text class="detail-value {{eveningStatusClass}}">{{eveningTime || '--:--'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计摘要 -->
+  <view class="stats-card">
+    <view class="stats-item">
+      <text class="stats-value">{{attendanceRate || 0}}%</text>
+      <text class="stats-label">本月出勤率</text>
+    </view>
+    <view class="stats-item">
+      <text class="stats-value warning">{{abnormalCount || 0}}</text>
+      <text class="stats-label">异常次数</text>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToRecords">
+      <image class="action-icon" src="/assets/record.png" />
+      <text class="action-text">打卡记录</text>
+    </view>
+    <view class="action-item" bindtap="goToLeave">
+      <image class="action-icon" src="/assets/leave.png" />
+      <text class="action-text">请假申请</text>
+    </view>
+    <view class="action-item" bindtap="goToMakeup">
+      <image class="action-icon" src="/assets/makeup.png" />
+      <text class="action-text">补卡申请</text>
+    </view>
+  </view>
+</view>

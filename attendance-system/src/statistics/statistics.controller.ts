@@ -11,10 +11,13 @@ export class StatisticsController {
   // 个人月度考勤统计
   @Get('personal')
   getPersonalStats(
+    @Req() req: any,
     @Query('year', new DefaultValuePipe(new Date().getFullYear())) year: number,
     @Query('month', new DefaultValuePipe(new Date().getMonth() + 1)) month: number,
   ) {
-    return this.statisticsService.getPersonalStats(null, year, month);
+    // 如果请求带上了 employeeId 参数且是管理员，返回指定员工的统计
+    // 否则返回当前登录用户的统计
+    return this.statisticsService.getPersonalStats(req.user.id, year, month);
   }
 
   // 部门考勤统计

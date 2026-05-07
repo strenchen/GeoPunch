@@ -1,0 +1,204 @@
+/* pages/index/index.wxss */
+.container {
+  padding: 20rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 用户信息栏 */
+.user-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 30rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background: #ddd;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.dept {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 日期卡片 */
+.date-card {
+  background: linear-gradient(135deg, #1890ff, #70b0ff);
+  color: #fff;
+  padding: 40rpx;
+  border-radius: 12rpx;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.date {
+  font-size: 36rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.weekday {
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+/* 打卡主卡片 */
+.checkin-card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 40rpx;
+  margin-bottom: 20rpx;
+}
+
+.checkin-btn {
+  width: 300rpx;
+  height: 300rpx;
+  border-radius: 50%;
+  margin: 0 auto 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 600;
+}
+
+.btn-normal {
+  background: linear-gradient(135deg, #1890ff, #70b0ff);
+  color: #fff;
+  box-shadow: 0 8rpx 30rpx rgba(24, 144, 255, 0.3);
+}
+
+.btn-disabled {
+  background: #52c41a;
+  color: #fff;
+  box-shadow: 0 8rpx 30rpx rgba(82, 196, 26, 0.3);
+}
+
+.checkin-time {
+  font-size: 64rpx;
+  font-weight: 700;
+  margin-bottom: 10rpx;
+}
+
+.checkin-label {
+  font-size: 28rpx;
+  font-weight: normal;
+}
+
+.checkin-detail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 60rpx;
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.detail-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.detail-value.warning {
+  color: #ff4d4f;
+}
+
+.detail-value.success {
+  color: #52c41a;
+}
+
+.divider {
+  width: 1rpx;
+  height: 60rpx;
+  background: #eee;
+}
+
+/* 统计卡片 */
+.stats-card {
+  display: flex;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.stats-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stats-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1890ff;
+  margin-bottom: 8rpx;
+}
+
+.stats-value.warning {
+  color: #ff4d4f;
+}
+
+.stats-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 快捷操作 */
+.quick-actions {
+  display: flex;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+}
+
+.action-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-icon {
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 12rpx;
+}
+
+.action-text {
+  font-size: 24rpx;
+  color: #666;
+}

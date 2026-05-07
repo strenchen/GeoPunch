@@ -1,0 +1,188 @@
+/* pages/makeup/makeup.wxss */
+.container {
+  padding: 20rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.tips-card {
+  background: #fff7e6;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.tips-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #fa8c16;
+  margin-bottom: 12rpx;
+}
+
+.tips-text {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.quota-card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.quota-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.quota-progress {
+  display: flex;
+  align-items: center;
+}
+
+.quota-bar {
+  flex: 1;
+  height: 16rpx;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  overflow: hidden;
+  margin-right: 16rpx;
+}
+
+.quota-fill {
+  height: 100%;
+  background: #1890ff;
+  border-radius: 8rpx;
+  transition: width 0.3s;
+}
+
+.quota-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1890ff;
+}
+
+.form-card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.form-item {
+  margin-bottom: 30rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.picker-value {
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.form-input {
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 20rpx;
+  background: #f5f5f5;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  min-height: 150rpx;
+  box-sizing: border-box;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #1890ff;
+  color: #fff;
+  border-radius: 44rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-top: 20rpx;
+}
+
+.submit-btn[disabled] {
+  background: #ccc;
+}
+
+.history-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16rpx;
+  padding-left: 10rpx;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-card {
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.history-date {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+}
+
+.history-type {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 20rpx;
+}
+
+.history-status {
+  font-size: 24rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.history-status.pending {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.history-status.approved {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.history-status.rejected {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60rpx;
+  color: #999;
+  font-size: 28rpx;
+}

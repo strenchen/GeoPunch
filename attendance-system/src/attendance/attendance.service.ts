@@ -5,26 +5,206 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
+  // ============================================================
+  // 差异化考勤打卡
+  // ============================================================
   async clockIn(
     employeeId: number,
     type: 'CHECK_IN' | 'CHECK_OUT',
-    location: { latitude: number; longitude: number; address?: string },
+    location: { latitude: number; longitude: number; address?: string; photoUrl?: string },
     deviceId?: string,
     clientVersion?: string,
   ) {
     const checkTime = new Date();
 
-    // Check for suspicious duplicate clocking
+    // 1. 获取员工信息和员工类型
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: employeeId },
+      include: {
+        department: true,
+        role: true,
+      },
+    });
+
+    if (!employee) throw new NotFoundException({ code: 10004, message: '员工不存在' });
+
+    // 2. 根据员工类型分发不同打卡逻辑
+    switch (employee.employeeType) {
+      case 'LEADER':
+        // 领导豁免：直接记录为 NORMAL，不校验地点
+        return this.recordCheckIn(employeeId, type, location, deviceId, 'NORMAL');
+
+      case 'SALES':
+        // 销售：校验日打卡上限（默认1次）+ 可选拍照 + 不校验地点
+        return this.salesCheckIn(employeeId, type, location, deviceId);
+
+      case 'RD_ADMIN':
+        // 研发行政：校验地点白名单 + 时段 + 误差范围
+        return this.rdAdminCheckIn(employeeId, type, location, deviceId, checkTime);
+
+      default:
+        throw new BadRequestException({ code: 10001, message: '未知的员工类型' });
+    }
+  }
+
+  // ============================================================
+  // 研发行政打卡 - 严格校验
+  // ============================================================
+  private async rdAdminCheckIn(
+    employeeId: number,
+    type: 'CHECK_IN' | 'CHECK_OUT',
+    location: { latitude: number; longitude: number; address?: string; photoUrl?: string },
+    deviceId: string | undefined,
+    checkTime: Date,
+  ) {
+    // 检查重复打卡（60秒内）
     const recentClock = await this.prisma.attendance.findFirst({
       where: {
         employeeId,
-        type: type,
+        type,
         checkTime: { gte: new Date(checkTime.getTime() - 60000) },
       },
     });
     if (recentClock) {
       throw new BadRequestException({ code: 10008, message: '请勿重复打卡' });
     }
+
+    // 获取考勤规则
+    const rule = await this.prisma.attendanceRule.findFirst({
+      where: { ruleType: 'RD_ADMIN_CHECKIN', isActive: true },
+    });
+
+    // 获取考勤地点白名单
+    const whitelists = await this.prisma.locationWhitelist.findMany({
+      where: {
+        departmentId: null, // 公司级白名单
+        isActive: true,
+      },
+    });
+
+    // 如果有部门级白名单也加入
+    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId } });
+    if (employee) {
+      const deptWhitelists = await this.prisma.locationWhitelist.findMany({
+        where: { departmentId: employee.departmentId, isActive: true },
+      });
+      whitelists.push(...deptWhitelists);
+    }
+
+    // 校验 GPS 是否在白名单范围内
+    let isInRange = false;
+    let matchedLocation = '';
+    for (const wl of whitelists) {
+      const distance = this.calculateDistance(
+        location.latitude, location.longitude,
+        wl.latitude, wl.longitude,
+      );
+      if (distance <= wl.radiusMeters) {
+        isInRange = true;
+        matchedLocation = wl.name;
+        break;
+      }
+    }
+
+    if (!isInRange) {
+      // 记录异常，不直接拒绝（可申请审批）
+      await this.prisma.attendanceAbnormal.create({
+        data: {
+          employeeId,
+          type: 'GPS_OUT_OF_RANGE',
+          latitude: location.latitude,
+          longitude: location.longitude,
+          address: location.address,
+          deviceId,
+          checkTime,
+          status: 'PENDING',
+        },
+      });
+      throw new BadRequestException({ code: 10001, message: `不在允许打卡范围内（${matchedLocation || '未知地点'}）` });
+    }
+
+    // 校验打卡时段（如果规则配置了时段）
+    if (rule?.config) {
+      const config = rule.config as any;
+      const timeRule = type === 'CHECK_IN' ? config.checkin_times?.[0] : config.checkin_times?.[1];
+      if (timeRule) {
+        const nowTime = checkTime.toTimeString().slice(0, 5); // HH:MM
+        if (nowTime < timeRule.start || nowTime > timeRule.end) {
+          throw new BadRequestException({ 
+            code: 10001, 
+            message: `${type === 'CHECK_IN' ? '上班' : '下班'}打卡时间尚未开始（${timeRule.start}-${timeRule.end}）` 
+          });
+        }
+      }
+    }
+
+    // 判断打卡状态（是否迟到/早退）
+    const status = this.determineAttendStatus(type, checkTime, rule?.config);
+
+    return this.recordCheckIn(employeeId, type, location, deviceId, status);
+  }
+
+  // ============================================================
+  // 销售打卡 - 宽松规则
+  // ============================================================
+  private async salesCheckIn(
+    employeeId: number,
+    type: 'CHECK_IN' | 'CHECK_OUT',
+    location: { latitude: number; longitude: number; address?: string; photoUrl?: string },
+    deviceId: string | undefined,
+  ) {
+    const checkTime = new Date();
+
+    // 检查重复打卡（60秒内）
+    const recentClock = await this.prisma.attendance.findFirst({
+      where: {
+        employeeId,
+        type,
+        checkTime: { gte: new Date(checkTime.getTime() - 60000) },
+      },
+    });
+    if (recentClock) {
+      throw new BadRequestException({ code: 10008, message: '请勿重复打卡' });
+    }
+
+    // 获取考勤规则（销售规则）
+    const rule = await this.prisma.attendanceRule.findFirst({
+      where: { ruleType: 'SALES_CHECKIN', isActive: true },
+    });
+
+    // 校验日打卡上限
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today.getTime() + 86400000);
+
+    const todayClocks = await this.prisma.attendance.count({
+      where: {
+        employeeId,
+        type,
+        checkTime: { gte: today, lt: tomorrow },
+      },
+    });
+
+    const dailyLimit = (rule?.config as any)?.daily_limit || 1;
+    if (todayClocks >= dailyLimit) {
+      throw new BadRequestException({ code: 10001, message: `今日${type === 'CHECK_IN' ? '上班' : '下班'}打卡已达上限（${dailyLimit}次）` });
+    }
+
+    // 销售不校验地点，但记录 GPS
+    return this.recordCheckIn(employeeId, type, location, deviceId, 'NORMAL');
+  }
+
+  // ============================================================
+  // 记录打卡（通用）
+  // ============================================================
+  private async recordCheckIn(
+    employeeId: number,
+    type: 'CHECK_IN' | 'CHECK_OUT',
+    location: { latitude: number; longitude: number; address?: string; photoUrl?: string },
+    deviceId: string | undefined,
+    status: 'NORMAL' | 'LATE' | 'EARLY_LEAVE',
+  ) {
+    const checkTime = new Date();
 
     const record = await this.prisma.attendance.create({
       data: {
@@ -35,13 +215,69 @@ export class AttendanceService {
         longitude: location.longitude,
         address: location.address,
         deviceId,
-        status: 'NORMAL',
+        photoUrl: location.photoUrl,
+        status,
       },
     });
 
-    return { code: 0, message: type === 'CHECK_IN' ? '上班打卡成功' : '下班打卡成功', data: record };
+    return { 
+      code: 0, 
+      message: type === 'CHECK_IN' 
+        ? (status === 'LATE' ? '打卡成功（迟到）' : '上班打卡成功') 
+        : (status === 'EARLY_LEAVE' ? '打卡成功（早退）' : '下班打卡成功'), 
+      data: record 
+    };
   }
 
+  // ============================================================
+  // 判断打卡状态（迟到/早退）
+  // ============================================================
+  private determineAttendStatus(
+    type: 'CHECK_IN' | 'CHECK_OUT',
+    checkTime: Date,
+    ruleConfig: any,
+  ): 'NORMAL' | 'LATE' | 'EARLY_LEAVE' {
+    if (!ruleConfig) return 'NORMAL';
+
+    const config = ruleConfig as any;
+    const timeRule = type === 'CHECK_IN' ? config.checkin_times?.[0] : config.checkin_times?.[1];
+    if (!timeRule) return 'NORMAL';
+
+    const nowTime = checkTime.toTimeString().slice(0, 5);
+    const lateThreshold = timeRule.late_threshold || '09:30';
+    const earlyThreshold = timeRule.early_threshold || '18:00';
+
+    if (type === 'CHECK_IN' && nowTime > lateThreshold) {
+      return 'LATE';
+    }
+    if (type === 'CHECK_OUT' && nowTime < earlyThreshold) {
+      return 'EARLY_LEAVE';
+    }
+
+    return 'NORMAL';
+  }
+
+  // ============================================================
+  // 计算两点间距离（米）- Haversine 公式
+  // ============================================================
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371000; // 地球半径（米）
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRad(deg: number): number {
+    return deg * (Math.PI / 180);
+  }
+
+  // ============================================================
+  // 查询打卡记录
+  // ============================================================
   async getRecords(employeeId: number, params: { month?: number; year?: number; page?: number; pageSize?: number }) {
     const { month, year, page = 1, pageSize = 31 } = params;
     const where: any = {};
@@ -58,6 +294,9 @@ export class AttendanceService {
     return { code: 0, message: 'success', data: records };
   }
 
+  // ============================================================
+  // 获取今日打卡状态
+  // ============================================================
   async getTodayStatus(employeeId: number) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -82,6 +321,9 @@ export class AttendanceService {
     };
   }
 
+  // ============================================================
+  // 同步离线打卡
+  // ============================================================
   async syncOfflineCheckin(employeeId: number, records: any[]) {
     const results = [];
     for (const r of records) {
@@ -102,7 +344,10 @@ export class AttendanceService {
     return { code: 0, message: '同步成功', data: results };
   }
 
-  async getAbnormals(params: { page?: number; pageSize?: number; department?: string; status?: string; startDate?: string; endDate?: string }) {
+  // ============================================================
+  // 获取考勤异常列表
+  // ============================================================
+  async getAbnormals(params: { page?: number; pageSize?: number; status?: string; startDate?: string; endDate?: string }) {
     const { page = 1, pageSize = 20, status, startDate, endDate } = params;
     const where: any = {};
     if (status) where.status = status;
@@ -119,6 +364,9 @@ export class AttendanceService {
     return { code: 0, message: 'success', data: records };
   }
 
+  // ============================================================
+  // 处理异常记录
+  // ============================================================
   async resolveAbnormal(id: number, resolution: 'APPROVED' | 'REJECTED', note?: string) {
     const abnormal = await this.prisma.attendanceAbnormal.findUnique({ where: { id } });
     if (!abnormal) {
@@ -133,6 +381,9 @@ export class AttendanceService {
     };
   }
 
+  // ============================================================
+  // 获取请假余额
+  // ============================================================
   async getLeaveBalance(employeeId: number) {
     const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },

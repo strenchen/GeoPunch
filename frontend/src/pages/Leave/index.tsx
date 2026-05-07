@@ -30,13 +30,24 @@ export default function LeavePage() {
   // 请假列表
   const { data: leaveList = [], isLoading: leaveLoading } = useQuery({
     queryKey: ['leaveRequests'],
-    queryFn: () => leaveService.list()
+    queryFn: () => leaveService.list().then((list: any[]) => list.map((r: any) => ({
+      ...r,
+      employee_name: r.employee?.name,
+      employee_department: r.employee?.department,
+      startDate: r.startDate?.slice(0, 10),
+      endDate: r.endDate?.slice(0, 10),
+    })))
   });
 
   // 补卡列表
   const { data: makeupList = [], isLoading: makeupLoading } = useQuery({
     queryKey: ['makeupRequests'],
-    queryFn: () => makeupService.list()
+    queryFn: () => makeupService.list().then((list: any[]) => list.map((r: any) => ({
+      ...r,
+      employee_name: r.employee?.name,
+      employee_department: r.employee?.department,
+      date: r.date?.slice(0, 10),
+    })))
   });
 
   const leaveMutation = useMutation({
@@ -95,26 +106,29 @@ export default function LeavePage() {
 
   const leaveColumns = [
     { title: t('employee.name'), dataIndex: 'employee_name', width: 120 },
-    { title: t('leave.leaveType'), dataIndex: 'leave_type', width: 120,
-      render: (type: string) => t(`leaveType.${type}`) },
-    { title: t('leave.startDate'), dataIndex: 'start_date', width: 120 },
-    { title: t('leave.endDate'), dataIndex: 'end_date', width: 120 },
-    { title: t('leave.duration'), dataIndex: 'duration_days', width: 90,
-      render: (d: number) => `${d}天` },
+    { title: t('leave.leaveType'), dataIndex: 'type', width: 120,
+      render: (type: string) => {
+        const map: Record<string, string> = { ANNUAL: '年假', SICK: '病假', PERSONAL: '事假', MARRIAGE: '婚假', MATERNITY: '产假', PATERNITY: '陪产假', BEREAVEMENT: '丧假', UNPAID: '无薪假' };
+        return t(`leaveType.${type}`) !== `leaveType.${type}` ? t(`leaveType.${type}`) : (map[type] || type);
+      } },
+    { title: t('leave.startDate'), dataIndex: 'startDate', width: 120 },
+    { title: t('leave.endDate'), dataIndex: 'endDate', width: 120 },
+    { title: t('leave.duration'), dataIndex: 'durationDays', width: 90,
+      render: (d: number) => `${d || 0}天` },
     { title: t('leave.reason'), dataIndex: 'reason', ellipsis: true },
     { title: t('employee.status'), dataIndex: 'status', width: 100,
-      render: (s: string) => <span style={{ color: statusColors[s] }}>{t(`approvalStatus.${s}`)}</span> }
+      render: (s: string) => <span style={{ color: statusColors[s?.toLowerCase()] }}>{t(`approvalStatus.${s?.toLowerCase()}`)}</span> }
   ];
 
   const makeupColumns = [
     { title: t('employee.name'), dataIndex: 'employee_name', width: 120 },
-    { title: t('attendance.date'), dataIndex: 'target_date', width: 120 },
+    { title: t('attendance.date'), dataIndex: 'date', width: 120 },
     { title: t('makeup.checkTime'), dataIndex: 'check_time', width: 180 },
     { title: t('leave.reason'), dataIndex: 'reason', ellipsis: true },
     {
       title: t('employee.status'),
       dataIndex: 'status', width: 100,
-      render: (s: string) => <span style={{ color: statusColors[s] }}>{t(`approvalStatus.${s}`)}</span>
+      render: (s: string) => <span style={{ color: statusColors[s?.toLowerCase()] }}>{t(`approvalStatus.${s?.toLowerCase()}`)}</span>
     }
   ];
 
@@ -192,10 +206,10 @@ export default function LeavePage() {
             <>
               <Form.Item name="leave_type" label={t('leave.leaveType')} rules={[{ required: true }]}>
                 <Select>
-                  <Option value="年假">{t('leave.annual')}</Option>
-                  <Option value="病假">{t('leave.sick')}</Option>
-                  <Option value="事假">{t('leave.personal')}</Option>
-                  <Option value="其他">{t('leave.other')}</Option>
+                  <Option value="ANNUAL">{t('leave.annual')}</Option>
+                  <Option value="SICK">{t('leave.sick')}</Option>
+                  <Option value="PERSONAL">{t('leave.personal')}</Option>
+                  <Option value="UNPAID">{t('leave.other')}</Option>
                 </Select>
               </Form.Item>
               <Form.Item name="dateRange" label={t('leave.dateRange')} rules={[{ required: true }]}>

@@ -8,7 +8,7 @@ export class StatisticsService {
   constructor(private prisma: PrismaService) {}
 
   // 个人月度考勤统计
-  async getPersonalStats(employeeId: number | null, year: number, month: number) {
+  async getPersonalStats(employeeId: number, year: number, month: number) {
     const now = new Date();
     const targetYear = year || now.getFullYear();
     const targetMonth = month || now.getMonth() + 1;
@@ -16,9 +16,10 @@ export class StatisticsService {
     const startDate = new Date(targetYear, targetMonth - 1, 1);
     const endDate = new Date(targetYear, targetMonth, 0, 23, 59, 59);
 
-    // 如果没有指定 employeeId，使用当前登录用户（在 controller 中处理）
+    // 按员工ID过滤
     const where: any = {
       checkTime: { gte: startDate, lte: endDate },
+      employeeId: employeeId,
     };
 
     const records = await this.prisma.attendance.findMany({

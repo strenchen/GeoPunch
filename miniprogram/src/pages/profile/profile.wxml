@@ -1,0 +1,91 @@
+<view class="container">
+  <!-- 登录表单 -->
+  <view class="login-card" wx:if="{{!isLoggedIn}}">
+    <text class="login-title">登录</text>
+    <input class="login-input" placeholder="请输入工号" bindinput="onEmployeeNumberInput" value="{{employeeNumber}}" />
+    <input class="login-input" type="password" placeholder="请输入密码" bindinput="onPasswordInput" value="{{password}}" />
+    <button class="login-btn" bindtap="doLogin">登录</button>
+  </view>
+
+  <!-- 用户信息 -->
+  <view class="profile-card" wx:else>
+    <view class="user-header">
+      <image class="avatar" src="/assets/avatar.png" mode="aspectFill" />
+      <view class="user-info">
+        <text class="username">{{userInfo.name}}</text>
+        <text class="employee-no">工号: {{userInfo.employeeNumber}}</text>
+        <text class="dept">{{userInfo.department}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 考勤概览 -->
+  <view class="stats-card" wx:if="{{isLoggedIn}}">
+    <text class="stats-title">考勤概览</text>
+    <view class="stats-grid">
+      <view class="stats-item">
+        <text class="stats-value">{{stats.attendanceRate || 0}}%</text>
+        <text class="stats-label">出勤率</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value warning">{{stats.lateDays || 0}}</text>
+        <text class="stats-label">迟到次数</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value warning">{{stats.earlyLeaveDays || 0}}</text>
+        <text class="stats-label">早退次数</text>
+      </view>
+      <view class="stats-item">
+        <text class="stats-value">{{stats.makeupDays || 0}}</text>
+        <text class="stats-label">补卡申请</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="menu-card" wx:if="{{isLoggedIn}}">
+    <view class="menu-item" bindtap="goToLeave">
+      <image class="menu-icon" src="/assets/leave.png" />
+      <text class="menu-text">请假申请</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToMakeup">
+      <image class="menu-icon" src="/assets/makeup.png" />
+      <text class="menu-text">补卡申请</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goToRecords">
+      <image class="menu-icon" src="/assets/record.png" />
+      <text class="menu-text">打卡记录</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <!-- 管理员入口 -->
+    <view class="menu-item" wx:if="{{isAdmin}}" bindtap="goToApproval">
+      <image class="menu-icon" src="/assets/approval.png" />
+      <text class="menu-text">审批管理</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 设置 -->
+  <view class="menu-card" wx:if="{{isLoggedIn}}">
+    <view class="menu-item">
+      <image class="menu-icon" src="/assets/settings.png" />
+      <text class="menu-text">设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/assets/help.png" />
+      <text class="menu-text">帮助与反馈</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item">
+      <image class="menu-icon" src="/assets/about.png" />
+      <text class="menu-text">关于</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <button class="logout-btn" wx:if="{{isLoggedIn}}" bindtap="doLogout">退出登录</button>
+</view>

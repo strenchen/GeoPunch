@@ -5,42 +5,33 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { EmployeeService } from './employee.service';
 
-@Controller('employees')
+@Controller('employee')
 @UseGuards(AuthGuard('jwt'))
 export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
-  // 获取员工列表 (GET)
+  // 获取员工列表
   @Get()
   findAll(
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
-    @Query('department') department?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('department_id') departmentId?: string,
     @Query('keyword') keyword?: string,
     @Query('isActive') isActive?: string,
+    @Query('employee_type') employeeType?: string,
   ) {
     return this.employeeService.findAll({
       page: page ? Number(page) : 1,
       pageSize: pageSize ? Number(pageSize) : 20,
-      department,
+      departmentId: departmentId ? Number(departmentId) : undefined,
       keyword,
       isActive: isActive !== undefined ? isActive === 'true' : undefined,
-    });
-  }
-
-  // 获取员工列表 (POST) - 前端调用
-  @Post()
-  async findAllPost(@Body() body: any) {
-    const { department_id, status, search } = body;
-    return this.employeeService.findAll({
-      department: department_id,
-      keyword: search,
-      isActive: status == 'active' ? true : status == 'inactive' ? false : undefined,
+      employeeType,
     });
   }
 
   // 获取部门列表
-  @Get('departments')
+  @Get('department')
   getDepartments() {
     return this.employeeService.getDepartments();
   }
@@ -55,7 +46,7 @@ export class EmployeeController {
   }
 
   // 创建员工
-  @Post('create')
+  @Post()
   create(@Body() data: any) {
     return this.employeeService.create(data);
   }
@@ -106,14 +97,14 @@ export class EmployeeController {
   @Put(':id/role')
   assignRole(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { role: string },
+    @Body() body: { roleId: number },
     @Req() req: any,
   ) {
-    return this.employeeService.assignRole(id, body.role, req.user.id, req.user.role);
+    return this.employeeService.assignRole(id, body.roleId, req.user.id, req.user.role);
   }
 
   // 批量导入
-  @Post('batch')
+  @Post('import')
   @HttpCode(HttpStatus.OK)
   batchImport(
     @Body() body: { employees: Array<any> },

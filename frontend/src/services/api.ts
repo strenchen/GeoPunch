@@ -75,7 +75,22 @@ export const attendanceService = {
   clockOut: (data: { latitude?: number; longitude?: number; address?: string }) =>
     request<AttendanceRecord>('/attendance/clock', { method: 'POST', body: JSON.stringify({ type: 'CHECK_OUT', ...data }) }),
   today: () => request<{ checkedIn: boolean; checkedOut: boolean; record?: AttendanceRecord }>('/attendance/status/today'),
-  stats: () => request<AttendanceSummary>('/statistics/personal'),
+  // 个人统计 - 转换后端响应格式
+  stats: () => request<{ year: number; month: number; totalWorkingDays: number; employees: any[] }>('/statistics/personal').then(r => {
+    const emp = r.employees?.[0];
+    return {
+      employee_id: emp?.employee?.id,
+      employee_name: emp?.employee?.name,
+      department_name: emp?.employee?.department,
+      year_month: `${r.year}-${String(r.month).padStart(2, '0')}`,
+      total_work_days: r.totalWorkingDays,
+      normal_days: emp?.normalDays || 0,
+      late_days: emp?.lateDays || 0,
+      early_leave_days: emp?.earlyLeaveDays || 0,
+      absent_days: emp?.absentDays || 0,
+      leave_days: 0,
+    };
+  }),
   abnormals: () => request<AttendanceRecord[]>('/attendance/abnormals'),
   leaveBalance: (employeeId: number) =>
     request<LeaveBalance>(`/attendance/leave-balance/${employeeId}`),

@@ -1,0 +1,89 @@
+<view class="container">
+  <!-- Tab切换 -->
+  <view class="tabs">
+    <view class="tab {{activeTab === 'leave' ? 'active' : ''}}" bindtap="switchTab" data-tab="leave">
+      请假申请
+      <text class="tab-badge" wx:if="{{leavePendingCount > 0}}">{{leavePendingCount}}</text>
+    </view>
+    <view class="tab {{activeTab === 'makeup' ? 'active' : ''}}" bindtap="switchTab" data-tab="makeup">
+      补卡申请
+      <text class="tab-badge" wx:if="{{makeupPendingCount > 0}}">{{makeupPendingCount}}</text>
+    </view>
+  </view>
+
+  <!-- 请假申请列表 -->
+  <view class="approval-list" wx:if="{{activeTab === 'leave'}}">
+    <block wx:for="{{leaveList}}" wx:key="id">
+      <view class="approval-card">
+        <view class="card-header">
+          <image class="avatar" src="/assets/avatar.png" />
+          <view class="header-info">
+            <text class="employee-name">{{item.employeeName}}</text>
+            <text class="submit-time">{{item.submitTime}}</text>
+          </view>
+        </view>
+        <view class="card-content">
+          <view class="content-row">
+            <text class="row-label">请假类型:</text>
+            <text class="row-value">{{item.typeText}}</text>
+          </view>
+          <view class="content-row">
+            <text class="row-label">请假日期:</text>
+            <text class="row-value">{{item.startDate}} 至 {{item.endDate}}</text>
+          </view>
+          <view class="content-row">
+            <text class="row-label">请假时长:</text>
+            <text class="row-value">{{item.duration}}天</text>
+          </view>
+          <view class="content-row">
+            <text class="row-label">请假原因:</text>
+            <text class="row-value reason">{{item.reason}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <button class="reject-btn" size="mini" data-id="{{item.id}}" bindtap="rejectLeave">驳回</button>
+          <button class="approve-btn" size="mini" data-id="{{item.id}}" bindtap="approveLeave">通过</button>
+        </view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{leaveList.length === 0}}">
+      <text>暂无待审批请假申请</text>
+    </view>
+  </view>
+
+  <!-- 补卡申请列表 -->
+  <view class="approval-list" wx:if="{{activeTab === 'makeup'}}">
+    <block wx:for="{{makeupList}}" wx:key="id">
+      <view class="approval-card">
+        <view class="card-header">
+          <image class="avatar" src="/assets/avatar.png" />
+          <view class="header-info">
+            <text class="employee-name">{{item.employeeName}}</text>
+            <text class="submit-time">{{item.submitTime}}</text>
+          </view>
+        </view>
+        <view class="card-content">
+          <view class="content-row">
+            <text class="row-label">补卡类型:</text>
+            <text class="row-value">{{item.typeText}}</text>
+          </view>
+          <view class="content-row">
+            <text class="row-label">补卡日期:</text>
+            <text class="row-value">{{item.dateStr}}</text>
+          </view>
+          <view class="content-row">
+            <text class="row-label">补卡原因:</text>
+            <text class="row-value reason">{{item.reason}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <button class="reject-btn" size="mini" data-id="{{item.id}}" bindtap="rejectMakeup">驳回</button>
+          <button class="approve-btn" size="mini" data-id="{{item.id}}" bindtap="approveMakeup">通过</button>
+        </view>
+      </view>
+    </block>
+    <view class="empty-state" wx:if="{{makeupList.length === 0}}">
+      <text>暂无待审批补卡申请</text>
+    </view>
+  </view>
+</view>
