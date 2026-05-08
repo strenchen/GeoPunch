@@ -77,7 +77,7 @@ export default function AttendancePage() {
   });
 
   const handleClockIn = () => {
-    if (todayStatus?.checkedIn) {
+    if (todayStatus?.checkIn) {
       Modal.confirm({ title: t('attendance.alreadyClockIn'), onOk: () => clockInMutation.mutate() });
     } else {
       clockInMutation.mutate();
@@ -85,11 +85,11 @@ export default function AttendancePage() {
   };
 
   const handleClockOut = () => {
-    if (!todayStatus?.checkedIn) {
+    if (!todayStatus?.checkIn) {
       message.warning(t('attendance.pleaseClockInFirst'));
       return;
     }
-    if (todayStatus?.checkedOut) {
+    if (todayStatus?.checkOut) {
       Modal.confirm({ title: t('attendance.alreadyClockOut'), onOk: () => clockOutMutation.mutate() });
     } else {
       clockOutMutation.mutate();
@@ -140,15 +140,15 @@ export default function AttendancePage() {
               <Col>
                 <Statistic
                   title={t('attendance.todayStatus')}
-                  value={todayStatus?.checkedIn ? dayjs().format('HH:mm') : '--:--'}
-                  suffix={todayStatus?.checkedIn ? ` (${t('attendance.clockedIn')})` : ''}
+                  value={todayStatus?.checkIn ? dayjs(todayStatus.checkIn).format('HH:mm') : '--:--'}
+                  suffix={todayStatus?.checkIn ? ` (${t('attendance.clockedIn')})` : ''}
                 />
               </Col>
               <Col>
                 <Statistic
                   title={t('attendance.clockOutStatus')}
-                  value={todayStatus?.checkedOut ? dayjs().format('HH:mm') : '--:--'}
-                  suffix={todayStatus?.checkedOut ? ` (${t('attendance.clockedOut')})` : ''}
+                  value={todayStatus?.checkOut ? dayjs(todayStatus.checkOut).format('HH:mm') : '--:--'}
+                  suffix={todayStatus?.checkOut ? ` (${t('attendance.clockedOut')})` : ''}
                 />
               </Col>
             </Row>
@@ -159,7 +159,7 @@ export default function AttendancePage() {
                 icon={<LoginOutlined />}
                 onClick={handleClockIn}
                 loading={clockInMutation.isPending}
-                disabled={todayStatus?.checkedIn}
+                disabled={!!todayStatus?.checkIn}
               >
                 {t('attendance.clockIn')}
               </Button>
@@ -168,7 +168,7 @@ export default function AttendancePage() {
                 icon={<LogoutOutlined />}
                 onClick={handleClockOut}
                 loading={clockOutMutation.isPending}
-                disabled={!todayStatus?.checkedIn || todayStatus?.checkedOut}
+                disabled={!todayStatus?.checkIn || !!todayStatus?.checkOut}
               >
                 {t('attendance.clockOut')}
               </Button>

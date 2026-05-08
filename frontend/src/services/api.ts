@@ -80,7 +80,7 @@ export const attendanceService = {
     request<AttendanceRecord>('/attendance/clock', { method: 'POST', body: JSON.stringify({ type: 'CHECK_IN', ...data }) }),
   clockOut: (data: { latitude?: number; longitude?: number; address?: string }) =>
     request<AttendanceRecord>('/attendance/clock', { method: 'POST', body: JSON.stringify({ type: 'CHECK_OUT', ...data }) }),
-  today: () => request<{ checkedIn: boolean; checkedOut: boolean; record?: AttendanceRecord }>('/attendance/status/today'),
+  today: () => request<{ date: string; checkIn: string | null; checkOut: string | null; isComplete: boolean }>('/attendance/status/today'),
   // 个人统计 - 转换后端响应格式
   stats: () => request<{ year: number; month: number; totalWorkingDays: number; employees: any[] }>('/statistics/personal').then(r => {
     const emp = r.employees?.[0];
