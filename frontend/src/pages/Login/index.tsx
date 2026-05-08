@@ -17,10 +17,11 @@ export default function LoginPage() {
         password: values.password 
       });
       setToken(accessToken);
+      const getRoleName = (role: any) => typeof role === 'string' ? role : role?.name || '';
       setCurrentUser({ 
         id: employee.id as number, 
         name: employee.name, 
-        role: employee.role 
+        role: getRoleName(employee.role) 
       });
       message.success(t('common.success'));
       navigate('/employee');

@@ -31,10 +31,11 @@ export interface Employee {
   name: string;             // 姓名
   email?: string;
   phone?: string;
-  department: string;        // 部门名称
+  department?: { id: number; name: string } | string;  // 部门，可能是对象或字符串
   position?: string;        // 职位
-  role: string;             // 角色: ADMIN, MANAGER, EMPLOYEE
+  role?: { id: number; name: string } | string;        // 角色，可能是对象或字符串
   isActive: boolean;        // 是否在职
+  employeeType?: string;
   hireDate?: string;
   createdAt?: string;
 }

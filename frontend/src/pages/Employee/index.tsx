@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Modal, Form, Input, Select, Space, message, Tag } from 'antd';
+const { Option } = Select;
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataGrid } from 'react-data-grid';
@@ -9,7 +10,8 @@ import { employeeService, departmentService } from '../../services/api';
 import type { Employee, EmployeeStatus } from '../../types';
 import 'react-data-grid/lib/styles.css';
 
-const { Option } = Select;
+const getDeptName = (dept: any) => typeof dept === 'string' ? dept : dept?.name || '-';
+const getRoleName = (role: any) => typeof role === 'string' ? role : role?.name || '-';
 
 export default function EmployeePage() {
   const { t } = useTranslation();
@@ -41,7 +43,7 @@ export default function EmployeePage() {
       const matchSearch = !searchText ||
         emp.name?.includes(searchText) ||
         emp.employeeNumber?.includes(searchText);
-      const matchDept = !filterDept || emp.department === (departments as unknown as string[])[filterDept];
+      const matchDept = !filterDept || (emp.department && getDeptName(emp.department) === ((departments as any).find((d: any) => d.id === filterDept)?.name));
       const matchStatus = !filterStatus || (filterStatus === 'active' ? emp.isActive : !emp.isActive);
       return matchSearch && matchDept && matchStatus;
     });
@@ -134,12 +136,13 @@ export default function EmployeePage() {
     { name: t('employee.employeeId'), key: 'employeeNumber', width: 120 },
     { name: t('employee.name'), key: 'name', width: 120 },
     { name: t('employee.phone'), key: 'phone', width: 140, renderCell: () => <Tag>-</Tag> },
-    { name: t('employee.department'), key: 'department', width: 140 },
+    { name: t('employee.department'), key: 'department', width: 140,
+      renderCell: ({ row }) => getDeptName(row.department) },
     { name: t('employee.position'), key: 'position', width: 130 },
     { name: t('employee.role'), key: 'role', width: 130,
       renderCell: ({ row }) => {
         const colors: Record<string, string> = { ADMIN: 'red', MANAGER: 'orange', EMPLOYEE: 'default' };
-        return <Tag color={colors[row.role] || 'default'}>{row.role}</Tag>;
+        return <Tag color={colors[getRoleName(row.role)] || 'default'}>{getRoleName(row.role)}</Tag>;
       }
     },
     { name: t('employee.status'), key: 'isActive', width: 100,
@@ -186,8 +189,8 @@ export default function EmployeePage() {
           onChange={val => setFilterDept(val)}
           value={filterDept}
         >
-          {((departments as unknown) as string[]).map(d => (
-            <Option key={d} value={d}>{d}</Option>
+          {departments.map((d: any) => (
+            <Option key={d.id} value={d.id}>{d.name}</Option>
           ))}
         </Select>
         <Select
@@ -233,8 +236,8 @@ export default function EmployeePage() {
           </Form.Item>
           <Form.Item name="department_id" label={t('employee.department')} rules={[{ required: true }]}>
             <Select>
-              {((departments as unknown) as string[]).map(d => (
-                  <Option key={d} value={d}>{d}</Option>
+              {departments.map((d: any) => (
+                  <Option key={d.id} value={d.id}>{d.name}</Option>
                 ))}
             </Select>
           </Form.Item>
