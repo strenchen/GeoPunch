@@ -71,6 +71,11 @@ Page({
       wx.setStorageSync('token', data.accessToken);
       wx.setStorageSync('userInfo', userInfo);
 
+      // 更新全局状态
+      const app = getApp();
+      app.globalData.token = data.accessToken;
+      app.globalData.userInfo = userInfo;
+
       this.setData({
         isLoggedIn: true,
         userInfo,
