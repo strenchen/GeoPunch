@@ -43,8 +43,14 @@ interface PaginatedResponse<T> {
 
 // ============ 员工服务 ============
 export const employeeService = {
-  list: (params?: { department_id?: number; status?: string; search?: string }) =>
-    request<PaginatedResponse<Employee>>('/employee', { method: 'GET', params: params }),
+  list: (params?: { department_id?: number; status?: string; search?: string }) => {
+    const searchParams = new URLSearchParams();
+    if (params?.department_id) searchParams.set('department_id', String(params.department_id));
+    if (params?.status) searchParams.set('isActive', params.status === 'active' ? 'true' : 'false');
+    if (params?.search) searchParams.set('keyword', params.search);
+    const qs = searchParams.toString();
+    return request<PaginatedResponse<Employee>>(`/employee${qs ? '?' + qs : ''}`, { method: 'GET' });
+  },
   get: (id: number) => request<Employee>(`/employee/${id}`),
   create: (data: Omit<Employee, 'id'>) => request<Employee>('/employee', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: number, data: Partial<Employee>) => request<Employee>(`/employee/${id}`, { method: 'PUT', body: JSON.stringify(data) }),

@@ -40,11 +40,11 @@ export default function ReportPage() {
   // 统计数据
   const stats = {
     total: (summaryData as AttendanceSummary[]).length,
-    normal: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + s.normal_days, 0),
-    late: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + s.late_days, 0),
-    earlyLeave: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + s.early_leave_days, 0),
-    absent: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + s.absent_days, 0),
-    leave: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + s.leave_days, 0)
+    normal: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + (s.normal_days || 0), 0),
+    late: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + (s.late_days || 0), 0),
+    earlyLeave: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + (s.early_leave_days || 0), 0),
+    absent: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + (s.absent_days || 0), 0),
+    leave: (summaryData as AttendanceSummary[]).reduce((sum, s) => sum + (s.leave_days || 0), 0)
   };
 
   const columns = [
