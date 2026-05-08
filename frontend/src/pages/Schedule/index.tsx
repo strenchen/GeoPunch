@@ -31,8 +31,6 @@ export default function SchedulePage() {
       employee_name: s.employee?.name,
       schedule_date: s.scheduleDate?.slice(0, 10),
       shift_type: s.shiftType?.toLowerCase(),
-      check_in_start: s.startTime,
-      check_in_end: s.endTime,
     })))
   });
 
@@ -61,8 +59,11 @@ export default function SchedulePage() {
 
   const handleSubmit = (values: any) => {
     createMutation.mutate({
-      ...values,
-      schedule_date: values.schedule_date.format('YYYY-MM-DD')
+      employee_id: values.employee_id,
+      schedule_date: values.schedule_date.format('YYYY-MM-DD'),
+      shift_type: values.shift_type,
+      start_time: values.start_time,
+      end_time: values.end_time,
     });
   };
 
@@ -95,10 +96,8 @@ export default function SchedulePage() {
         return <Tag color={colors[type]}>{t(`shiftType.${type}`)}</Tag>;
       }
     },
-    { title: t('schedule.checkInStart'), dataIndex: 'check_in_start', width: 90 },
-    { title: t('schedule.checkInEnd'), dataIndex: 'check_in_end', width: 90 },
-    { title: t('schedule.checkOutStart'), dataIndex: 'check_out_start', width: 90 },
-    { title: t('schedule.checkOutEnd'), dataIndex: 'check_out_end', width: 90 },
+    { title: t('schedule.workStartTime'), dataIndex: 'start_time', width: 90 },
+    { title: t('schedule.workEndTime'), dataIndex: 'end_time', width: 90 },
     {
       title: t('common.actions'),
       key: 'actions',
@@ -165,16 +164,10 @@ export default function SchedulePage() {
               <Option value="off">{t('shiftType.off')}</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="check_in_start" label={t('schedule.checkInStart')}>
+          <Form.Item name="start_time" label={t('schedule.workStartTime')}>
             <Input type="time" />
           </Form.Item>
-          <Form.Item name="check_in_end" label={t('schedule.checkInEnd')}>
-            <Input type="time" />
-          </Form.Item>
-          <Form.Item name="check_out_start" label={t('schedule.checkOutStart')}>
-            <Input type="time" />
-          </Form.Item>
-          <Form.Item name="check_out_end" label={t('schedule.checkOutEnd')}>
+          <Form.Item name="end_time" label={t('schedule.workEndTime')}>
             <Input type="time" />
           </Form.Item>
           <Space style={{ justifyContent: 'flex-end', width: '100%' }}>

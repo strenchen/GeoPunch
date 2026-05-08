@@ -166,10 +166,8 @@
     "applyShift": "Apply Shift",
     "shiftType": "Shift Type",
     "weekDay": "Weekday",
-    "checkInStart": "Check-in Start",
-    "checkInEnd": "Check-in End",
-    "checkOutStart": "Check-out Start",
-    "checkOutEnd": "Check-out End",
+    "workStartTime": "Work Start",
+    "workEndTime": "Work End",
     "originalDate": "Original Date",
     "targetDate": "Target Date",
     "thisWeek": "This Week"

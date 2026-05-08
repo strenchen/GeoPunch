@@ -166,10 +166,8 @@
     "applyShift": "申请调班",
     "shiftType": "班次类型",
     "weekDay": "星期",
-    "checkInStart": "上班开始",
-    "checkInEnd": "上班结束",
-    "checkOutStart": "下班开始",
-    "checkOutEnd": "下班结束",
+    "workStartTime": "上班时间",
+    "workEndTime": "下班时间",
     "originalDate": "原班日期",
     "targetDate": "目标日期",
     "thisWeek": "本周"
