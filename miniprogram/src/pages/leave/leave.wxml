@@ -4,15 +4,15 @@
     <view class="balance-title">请假余额</view>
     <view class="balance-items">
       <view class="balance-item">
-        <text class="balance-value annual">{{leaveBalance.annual?.remaining || 0}}</text>
+        <text class="balance-value annual">{{leaveBalance.annual ? leaveBalance.annual.remaining : 0}}</text>
         <text class="balance-label">年假</text>
       </view>
       <view class="balance-item">
-        <text class="balance-value sick">{{leaveBalance.sick?.remaining || 0}}</text>
+        <text class="balance-value sick">{{leaveBalance.sick ? leaveBalance.sick.remaining : 0}}</text>
         <text class="balance-label">病假</text>
       </view>
       <view class="balance-item">
-        <text class="balance-value personal">{{leaveBalance.personal?.remaining || 0}}</text>
+        <text class="balance-value personal">{{leaveBalance.personal ? leaveBalance.personal.remaining : 0}}</text>
         <text class="balance-label">事假</text>
       </view>
     </view>

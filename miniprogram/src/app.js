@@ -1,5 +1,5 @@
 // GeoPunch Mini Program - App Entry
-const API_BASE = 'http://localhost:3000/api/v1';
+const API_BASE = 'http://8.133.202.164:8888/api/v1';
 
 App({
   globalData: {
