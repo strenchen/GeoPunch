@@ -23,13 +23,13 @@ export const authService = {
 export const employeeService = {
   list: (params = {}) => {
     return app.request({
-      url: '/employees',
+      url: '/employee',
       method: 'POST',
       data: params,
     });
   },
   get: (id) => {
-    return app.request({ url: `/employees/${id}` });
+    return app.request({ url: `/employee/${id}` });
   },
 };
 
