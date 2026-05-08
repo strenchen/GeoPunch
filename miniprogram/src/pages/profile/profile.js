@@ -65,6 +65,7 @@ Page({
         employeeNumber: data.employee.employeeNumber,
         department: data.employee.department,
         role: data.employee.role,
+        employeeType: data.employee.employeeType,
       };
 
       wx.setStorageSync('token', data.accessToken);
