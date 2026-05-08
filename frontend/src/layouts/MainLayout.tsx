@@ -25,7 +25,6 @@ export default function MainLayout() {
     { key: '/report', icon: <BarChartOutlined />, label: t('menu.report') },
     { key: '/schedule', icon: <ScheduleOutlined />, label: t('menu.schedule') },
     { key: '/department', icon: <TeamOutlined />, label: t('menu.department') },
-    { key: '/role', icon: <TeamOutlined />, label: t('menu.role') || '角色管理' },
     { key: '/settings', icon: <SettingOutlined />, label: t('menu.settings') }
   ];
 
