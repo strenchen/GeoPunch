@@ -44,11 +44,11 @@ interface PaginatedResponse<T> {
 // ============ 员工服务 ============
 export const employeeService = {
   list: (params?: { department_id?: number; status?: string; search?: string }) =>
-    request<PaginatedResponse<Employee>>('/employees', { method: 'POST', body: JSON.stringify(params || {}) }),
-  get: (id: number) => request<Employee>(`/employees/${id}`),
-  create: (data: Omit<Employee, 'id'>) => request<Employee>('/employees', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: number, data: Partial<Employee>) => request<Employee>(`/employees/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: number) => request<void>(`/employees/${id}`, { method: 'DELETE' })
+    request<PaginatedResponse<Employee>>('/employee', { method: 'GET', params: params }),
+  get: (id: number) => request<Employee>(`/employee/${id}`),
+  create: (data: Omit<Employee, 'id'>) => request<Employee>('/employee', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: Partial<Employee>) => request<Employee>(`/employee/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<void>(`/employee/${id}`, { method: 'DELETE' })
 };
 
 // ============ 部门服务 ============
