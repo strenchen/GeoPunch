@@ -55,13 +55,18 @@ Page({
   async loadTodayStatus() {
     try {
       const data = await attendanceService.today();
-      const userInfo = this.data.userInfo;
+      const userInfo = this.data.userInfo || wx.getStorageSync('userInfo');
+      if (!userInfo) {
+        console.warn('未登录，跳转登录页');
+        return;
+      }
 
       // 判断员工类型
       const typeMap = { leader: '领导', sales: '销售', rd_admin: '研发行政' };
       const employeeTypeText = typeMap[userInfo.employeeType] || '研发行政';
 
       this.setData({
+        userInfo,
         employeeTypeText: employeeTypeText,
         checkinTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : '',
         morningTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : '',
