@@ -70,14 +70,15 @@ Page({
       const typeMap = { leader: '领导', sales: '销售', rd_admin: '研发行政' };
       const employeeTypeText = typeMap[userInfo.employeeType] || '研发行政';
 
+      const isCheckedIn = data.checkIn && data.checkIn !== true && data.checkIn !== 'true';
       this.setData({
         userInfo,
         employeeTypeText: employeeTypeText,
-        checkinTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : '',
-        morningTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : scheduleData?.startTime || '',
-        checkinLabel: data.checkedIn ? '已打卡' : '点击签到',
-        checkinBtnClass: data.checkedIn ? 'btn-disabled' : 'btn-normal',
-        eveningTime: data.checkedOut ? this.formatTime(data.record?.checkOutTime) : scheduleData?.endTime || '',
+        checkinTime: data.checkIn && data.checkIn !== true ? this.formatTime(data.checkIn) : '',
+        morningTime: data.checkIn && data.checkIn !== true ? this.formatTime(data.checkIn) : scheduleData?.startTime || '',
+        checkinLabel: data.checkIn && data.checkIn !== true ? '已打卡' : '点击签到',
+        checkinBtnClass: data.checkIn && data.checkIn !== true ? 'btn-disabled' : 'btn-normal',
+        eveningTime: data.checkOut && data.checkOut !== true ? this.formatTime(data.checkOut) : scheduleData?.endTime || '',
         scheduledStart: scheduleData?.startTime || '',
         scheduledEnd: scheduleData?.endTime || '',
       });
