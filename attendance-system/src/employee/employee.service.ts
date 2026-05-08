@@ -194,9 +194,30 @@ export class EmployeeService {
     delete (data as any).hireDate;
     delete (data as any).employeeNumber;
 
+    // 转换 department 和 role 字段为 Prisma 关联格式
+    const updateData: any = { ...data };
+    if (updateData.department) {
+      const deptId = typeof updateData.department === 'number' ? updateData.department : Number(updateData.department);
+      updateData.department = { connect: { id: deptId } };
+    }
+    if (updateData.role) {
+      const roleName = updateData.role;
+      updateData.role = { connect: { name: roleName } };
+    }
+    if (updateData.departmentId) {
+      updateData.department = { connect: { id: updateData.departmentId } };
+      delete updateData.departmentId;
+    }
+    if (updateData.roleId) {
+      // roleId 需要先通过 roleId 找到对应的 role name
+      const role = await this.prisma.role.findUnique({ where: { id: updateData.roleId } });
+      if (role) updateData.role = { connect: { name: role.name } };
+      delete updateData.roleId;
+    }
+
     const updated = await this.prisma.employee.update({
       where: { id },
-      data: data as any,
+      data: updateData,
       select: {
         id: true,
         employeeNumber: true,
