@@ -84,7 +84,7 @@ export class AttendanceService {
 
     // 如果有部门级白名单也加入
     const employee = await this.prisma.employee.findUnique({ where: { id: employeeId } });
-    if (employee) {
+    if (employee?.departmentId) {
       const deptWhitelists = await this.prisma.locationWhitelist.findMany({
         where: { departmentId: employee.departmentId, isActive: true },
       });
