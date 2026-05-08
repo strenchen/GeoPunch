@@ -146,7 +146,7 @@ export default function EmployeePage() {
   const columns: Column<Employee>[] = [
     { name: t('employee.employeeId'), key: 'employeeNumber', width: 120 },
     { name: t('employee.name'), key: 'name', width: 120 },
-    { name: t('employee.phone'), key: 'phone', width: 140, renderCell: () => <Tag>-</Tag> },
+    { name: t('employee.phone'), key: 'phone', width: 140, renderCell: ({ row }) => row.phone || '-' },
     { name: t('employee.department'), key: 'department', width: 140,
       renderCell: ({ row }) => getDeptName(row.department) },
     { name: t('employee.position'), key: 'position', width: 130 },
