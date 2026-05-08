@@ -27,7 +27,8 @@
     "report": "Report",
     "schedule": "Schedule",
     "settings": "Settings",
-    "department": "Departments"
+    "department": "Departments",
+    "role": "Roles"
   },
   "employee": {
     "title": "Employee Management",

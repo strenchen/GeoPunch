@@ -170,3 +170,10 @@ export interface Holiday {
   name: string;
   is_workday: boolean; // true=上班，false=放假
 }
+
+export interface Role {
+  id: number;
+  name: string;
+  permissions: any;
+  _count?: { employees: number };
+}

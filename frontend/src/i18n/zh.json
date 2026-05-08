@@ -27,7 +27,8 @@
     "report": "统计报表",
     "schedule": "排班管理",
     "settings": "系统设置",
-    "department": "部门管理"
+    "department": "部门管理",
+    "role": "角色管理"
   },
   "employee": {
     "title": "员工管理",

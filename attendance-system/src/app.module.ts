@@ -15,6 +15,7 @@ import { LoggingModule } from './logging/logging.module';
 import { ConfigModule as SystemConfigModule } from './config/config.module';
 import { ScheduleModule } from './schedule/schedule.module';
 import { DepartmentModule } from './department/department.module';
+import { RoleModule } from './role/role.module';
 import { HolidayModule } from './holiday/holiday.module';
 
 @Module({
@@ -59,6 +60,7 @@ import { HolidayModule } from './holiday/holiday.module';
     ScheduleModule,
     DepartmentModule,
     HolidayModule,
+    RoleModule,
   ],
 })
 export class AppModule {}

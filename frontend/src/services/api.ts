@@ -1,7 +1,7 @@
 import type {
   Employee, AttendanceRecord, LeaveRequest, MakeupRequest,
   AttendanceSummary, ApprovalItem, Department, Schedule,
-  SystemConfig, Holiday, LeaveBalance
+  SystemConfig, Holiday, LeaveBalance, Role
 } from '../types';
 
 const API_BASE = '/api/v1';
@@ -229,4 +229,12 @@ export const configService = {
 export const logService = {
   operations: () => request<any>('/logs/operations'),
   security: () => request<any>('/logs/security'),
+};
+
+export const roleService = {
+  list: () => request<Role[]>('/roles'),
+  get: (id: number) => request<Role>(`/roles/${id}`),
+  create: (data: { name: string; permissions?: any }) => request<Role>('/roles', { method: 'POST', body: JSON.stringify(data) }),
+  update: (id: number, data: { name?: string; permissions?: any }) => request<Role>(`/roles/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: (id: number) => request<any>(`/roles/${id}`, { method: 'DELETE' }),
 };
