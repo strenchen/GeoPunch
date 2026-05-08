@@ -24,7 +24,7 @@ export default function SchedulePage() {
   // 员工列表（用于下拉搜索）
   const { data: employees = [] } = useQuery({
     queryKey: ['employees-all'],
-    queryFn: () => employeeService.list({}).then((r: any) => r.list || []),
+    queryFn: () => employeeService.list({}).then((r: any) => r.employees || []),
   });
 
   const { data: scheduleList = [], isLoading } = useQuery({
