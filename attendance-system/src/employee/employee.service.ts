@@ -200,18 +200,27 @@ export class EmployeeService {
       const deptId = typeof updateData.department === 'number' ? updateData.department : Number(updateData.department);
       updateData.department = { connect: { id: deptId } };
     }
-    if (updateData.role) {
-      const roleName = updateData.role;
-      updateData.role = { connect: { name: roleName } };
-    }
     if (updateData.departmentId) {
       updateData.department = { connect: { id: updateData.departmentId } };
       delete updateData.departmentId;
     }
+    if (updateData.role) {
+      // role 可能是名称字符串，也可能是 { id, name } 对象
+      const roleName = typeof updateData.role === 'string' ? updateData.role : updateData.role?.name;
+      if (roleName) {
+        const roleRecord = await this.prisma.role.findUnique({ where: { name: roleName } });
+        if (roleRecord) {
+          updateData.role = { connect: { id: roleRecord.id } };
+        } else {
+          delete updateData.role; // 角色名不存在则跳过
+        }
+      }
+    }
     if (updateData.roleId) {
-      // roleId 需要先通过 roleId 找到对应的 role name
       const role = await this.prisma.role.findUnique({ where: { id: updateData.roleId } });
-      if (role) updateData.role = { connect: { name: role.name } };
+      if (role) {
+        updateData.role = { connect: { id: role.id } };
+      }
       delete updateData.roleId;
     }
 
