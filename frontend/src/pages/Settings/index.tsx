@@ -105,27 +105,15 @@ export default function SettingsPage() {
               <Card loading={configLoading}>
                 <Row gutter={[16, 16]}>
                   <Col span={12}>
-                    <Form.Item label={t('settings.checkInStart')} initialValue={cfg?.check_in_start}>
-                      <Input type="time" defaultValue={cfg?.check_in_start}
-                        onBlur={e => handleSaveConfig('check_in_start', e.target.value)} />
+                    <Form.Item label={t('settings.workStartTime')} initialValue={cfg?.work_start_time}>
+                      <Input type="time" defaultValue={cfg?.work_start_time}
+                        onBlur={e => handleSaveConfig('work_start_time', e.target.value)} />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
-                    <Form.Item label={t('settings.checkInEnd')} initialValue={cfg?.check_in_end}>
-                      <Input type="time" defaultValue={cfg?.check_in_end}
-                        onBlur={e => handleSaveConfig('check_in_end', e.target.value)} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item label={t('settings.checkOutStart')} initialValue={cfg?.check_out_start}>
-                      <Input type="time" defaultValue={cfg?.check_out_start}
-                        onBlur={e => handleSaveConfig('check_out_start', e.target.value)} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item label={t('settings.checkOutEnd')} initialValue={cfg?.check_out_end}>
-                      <Input type="time" defaultValue={cfg?.check_out_end}
-                        onBlur={e => handleSaveConfig('check_out_end', e.target.value)} />
+                    <Form.Item label={t('settings.workEndTime')} initialValue={cfg?.work_end_time}>
+                      <Input type="time" defaultValue={cfg?.work_end_time}
+                        onBlur={e => handleSaveConfig('work_end_time', e.target.value)} />
                     </Form.Item>
                   </Col>
                   <Col span={12}>

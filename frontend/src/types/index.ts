@@ -153,10 +153,8 @@ export interface Department {
 // === 系统设置 ===
 export interface SystemConfig {
   is_default: boolean;
-  check_in_start: string;
-  check_in_end: string;
-  check_out_start: string;
-  check_out_end: string;
+  work_start_time: string;
+  work_end_time: string;
   location_lat: number;
   location_lng: number;
   location_radius: number;
