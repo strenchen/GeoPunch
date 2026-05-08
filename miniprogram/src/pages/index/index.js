@@ -16,6 +16,8 @@ Page({
     attendanceRate: 0,
     abnormalCount: 0,
     employeeTypeText: '',
+    scheduledStart: '',
+    scheduledEnd: '',
   },
 
   onLoad() {
@@ -54,7 +56,10 @@ Page({
   // 加载今日打卡状态
   async loadTodayStatus() {
     try {
-      const data = await attendanceService.today();
+      const [data, scheduleData] = await Promise.all([
+        attendanceService.today(),
+        this.loadTodaySchedule(),
+      ]);
       const userInfo = this.data.userInfo || wx.getStorageSync('userInfo');
       if (!userInfo) {
         console.warn('未登录，跳转登录页');
@@ -69,14 +74,40 @@ Page({
         userInfo,
         employeeTypeText: employeeTypeText,
         checkinTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : '',
-        morningTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : '',
+        morningTime: data.checkedIn ? this.formatTime(data.record?.checkTime) : scheduleData?.startTime || '',
         checkinLabel: data.checkedIn ? '已打卡' : '点击签到',
         checkinBtnClass: data.checkedIn ? 'btn-disabled' : 'btn-normal',
-        eveningTime: data.checkedOut ? this.formatTime(data.record?.checkOutTime) : '',
+        eveningTime: data.checkedOut ? this.formatTime(data.record?.checkOutTime) : scheduleData?.endTime || '',
+        scheduledStart: scheduleData?.startTime || '',
+        scheduledEnd: scheduleData?.endTime || '',
       });
     } catch (err) {
       console.error('获取今日状态失败:', err);
     }
+  },
+
+  // 加载今日排班信息
+  async loadTodaySchedule() {
+    try {
+      const userInfo = this.data.userInfo || wx.getStorageSync('userInfo');
+      if (!userInfo) return null;
+      const today = new Date().toISOString().split('T')[0];
+      const schedules = await scheduleService.list({
+        employee_id: userInfo.id,
+        start_date: today,
+        end_date: today,
+      });
+      if (schedules?.data?.schedules?.[0]) {
+        const schedule = schedules.data.schedules[0];
+        return {
+          startTime: schedule.start_time,
+          endTime: schedule.end_time,
+        };
+      }
+    } catch (err) {
+      console.error('获取排班失败:', err);
+    }
+    return null;
   },
 
   // 格式化时间

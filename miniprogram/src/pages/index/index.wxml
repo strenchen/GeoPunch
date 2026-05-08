@@ -24,12 +24,12 @@
     <view class="checkin-detail">
       <view class="detail-item">
         <text class="detail-label">上班</text>
-        <text class="detail-value {{morningStatusClass}}">{{morningTime || '--:--'}}</text>
+        <text class="detail-value {{morningStatusClass}}">{{morningTime || scheduledStart || '--:--'}}</text>
       </view>
       <view class="divider"></view>
       <view class="detail-item">
         <text class="detail-label">下班</text>
-        <text class="detail-value {{eveningStatusClass}}">{{eveningTime || '--:--'}}</text>
+        <text class="detail-value {{eveningStatusClass}}">{{eveningTime || scheduledEnd || '--:--'}}</text>
       </view>
     </view>
   </view>
