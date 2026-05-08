@@ -76,10 +76,7 @@ export class AttendanceService {
 
     // 获取考勤地点白名单
     const whitelists = await this.prisma.locationWhitelist.findMany({
-      where: {
-        departmentId: null, // 公司级白名单
-        isActive: true,
-      },
+      where: { isActive: true },
     });
 
     // 如果有部门级白名单也加入
