@@ -6,7 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, ReloadOutli
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DataGrid } from 'react-data-grid';
 import type { Column } from 'react-data-grid';
-import { employeeService, departmentService } from '../../services/api';
+import { employeeService, departmentService, roleService } from '../../services/api';
 import type { Employee, EmployeeStatus } from '../../types';
 import 'react-data-grid/lib/styles.css';
 
@@ -35,6 +35,11 @@ export default function EmployeePage() {
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
     queryFn: departmentService.list
+  });
+
+  const { data: roles = [] } = useQuery({
+    queryKey: ['roles'],
+    queryFn: roleService.list
   });
 
   // 过滤
@@ -82,16 +87,16 @@ export default function EmployeePage() {
   const handleOpenModal = (record?: Employee) => {
     if (record) {
       setEditingEmployee(record);
-      const getDeptId = (dept: any) => typeof dept === 'object' ? dept?.id : dept;
-      const getRoleValue = (role: any) => typeof role === 'object' ? role?.name : role;
+      const deptId = typeof record.department === 'object' ? record.department?.id : record.departmentId;
+      const roleId = typeof record.role === 'object' ? record.role?.id : record.roleId;
       form.setFieldsValue({
         employee_id: record.employeeNumber,
         name: record.name,
         phone: record.phone,
-        department_id: getDeptId(record.department),
+        department_id: deptId,
         position: record.position,
         employee_type: record.employeeType,
-        role: getRoleValue(record.role),
+        role_id: roleId,
         status: record.isActive ? 'active' : 'inactive',
       });
     } else {
@@ -111,9 +116,11 @@ export default function EmployeePage() {
     // Transform form values to match backend API
     const transformed: any = {
       name: values.name,
-      department: values.department_id || values.department,
+      phone: values.phone,
+      departmentId: values.department_id,
       position: values.position,
-      role: values.role,
+      employeeType: values.employee_type,
+      roleId: values.role_id,
       isActive: values.status === 'active',
     };
     if (editingEmployee?.id) {
@@ -252,11 +259,11 @@ export default function EmployeePage() {
               <Option value="rd_admin">{t('employeeType.rd_admin')}</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="role" label={t('employee.role')} rules={[{ required: true }]}>
+          <Form.Item name="role_id" label={t('employee.role')} rules={[{ required: true }]}>
             <Select>
-              <Option value="super_admin">{t('systemRole.super_admin')}</Option>
-              <Option value="dept_admin">{t('systemRole.dept_admin')}</Option>
-              <Option value="employee">{t('systemRole.employee')}</Option>
+              {(roles as any[]).map(r => (
+                <Option key={r.id} value={r.id}>{r.name}</Option>
+              ))}
             </Select>
           </Form.Item>
           <Form.Item name="status" label={t('employee.status')} initialValue="active">

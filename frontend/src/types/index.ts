@@ -32,8 +32,10 @@ export interface Employee {
   email?: string;
   phone?: string;
   department?: { id: number; name: string } | string;  // 部门，可能是对象或字符串
+  departmentId?: number;    // 部门ID
   position?: string;        // 职位
   role?: { id: number; name: string } | string;        // 角色，可能是对象或字符串
+  roleId?: number;          // 角色ID
   isActive: boolean;        // 是否在职
   employeeType?: string;
   hireDate?: string;
