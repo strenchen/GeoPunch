@@ -82,12 +82,16 @@ export default function EmployeePage() {
   const handleOpenModal = (record?: Employee) => {
     if (record) {
       setEditingEmployee(record);
+      const getDeptId = (dept: any) => typeof dept === 'object' ? dept?.id : dept;
+      const getRoleValue = (role: any) => typeof role === 'object' ? role?.name : role;
       form.setFieldsValue({
         employee_id: record.employeeNumber,
         name: record.name,
-        department_id: record.department,
+        phone: record.phone,
+        department_id: getDeptId(record.department),
         position: record.position,
-        role: record.role,
+        employee_type: record.employeeType,
+        role: getRoleValue(record.role),
         status: record.isActive ? 'active' : 'inactive',
       });
     } else {
