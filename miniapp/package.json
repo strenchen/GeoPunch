@@ -17,17 +17,16 @@
     "@tarojs/plugin-platform-weapp": "3.6.40",
     "@tarojs/runtime": "3.6.40",
     "@tarojs/taro": "3.6.40",
-    "@tarojs/webpack5-runner": "3.6.40",
+    "@tarojs/webpack5-runner": "^3.6.40",
     "dayjs": "^1.11.0",
     "lodash": "^4.18.1",
     "pinia": "^2.1.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "vue-loader": "^17.0.0"
   },
   "devDependencies": {
     "@tarojs/cli": "3.6.40",
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "vue-loader": "^17.4.2",
-    "webpack": "^5.106.2"
+    "typescript": "^5.0.0"
   }
 }

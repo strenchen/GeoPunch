@@ -41,13 +41,14 @@ export class ApprovalService {
 
     const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },
+      include: { department: true, role: true },
     });
 
     // 查找直接主管
     const approver = await this.prisma.employee.findFirst({
       where: {
-        department: employee.department,
-        role: { in: ['MANAGER', 'ADMIN'] },
+        department: { name: employee.department?.name },
+        role: { name: { in: ['MANAGER', 'ADMIN'] } },
         id: { not: employeeId },
       },
     });
@@ -124,7 +125,7 @@ export class ApprovalService {
   ) {
     const request = await this.prisma.leaveRequest.findUnique({ 
       where: { id: requestId },
-      include: { employee: true },
+      include: { employee: { include: { department: true } } },
     });
     
     if (!request) throw new NotFoundException({ code: 10004, message: '请假申请不存在' });
@@ -141,8 +142,8 @@ export class ApprovalService {
       // 查找二级审批人
       const secondApprover = await this.prisma.employee.findFirst({
         where: {
-          department: request.employee.department,
-          role: 'ADMIN', // 二级审批需要 ADMIN 角色
+          department: { name: request.employee.department?.name },
+          role: { name: 'ADMIN' },
           id: { not: approverId },
         },
       });
@@ -278,9 +279,9 @@ export class ApprovalService {
       throw new BadRequestException({ code: 10001, message: '本月补卡次数已达上限（3次）' });
     }
 
-    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId } });
+    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId }, include: { department: true, role: true } });
     const approver = await this.prisma.employee.findFirst({
-      where: { department: employee.department, role: { in: ['MANAGER', 'ADMIN'] }, id: { not: employeeId } },
+      where: { department: { name: employee.department?.name }, role: { name: { in: ['MANAGER', 'ADMIN'] } }, id: { not: employeeId } },
     });
 
     const request = await this.prisma.makeupRequest.create({
@@ -503,15 +504,17 @@ export class ApprovalService {
   private async isAdmin(employeeId: number): Promise<boolean> {
     const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },
+      include: { role: true },
     });
-    return employee?.role === 'ADMIN' || employee?.role === 'MANAGER';
+    return employee?.role?.name === 'ADMIN' || employee?.role?.name === 'MANAGER';
   }
 
   private async hasApprovalPermission(employeeId: number): Promise<boolean> {
     const employee = await this.prisma.employee.findUnique({
       where: { id: employeeId },
+      include: { role: true },
     });
-    return employee?.role === 'ADMIN' || employee?.role === 'MANAGER';
+    return employee?.role?.name === 'ADMIN' || employee?.role?.name === 'MANAGER';
   }
 
   private async logOperation(

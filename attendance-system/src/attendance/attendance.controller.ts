@@ -50,7 +50,6 @@ export class AttendanceController {
       status,
       page: page ? parseInt(page) : undefined,
       pageSize: pageSize ? parseInt(pageSize) : undefined,
-      department,
     });
   }
 

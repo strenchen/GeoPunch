@@ -28,4 +28,20 @@ export class RegisterDto {
   @IsOptional()
   @IsDateString()
   hireDate?: string;
+
+  @IsOptional()
+  @IsString()
+  departmentId?: number;
+
+  @IsOptional()
+  @IsString()
+  roleId?: number;
+
+  @IsOptional()
+  @IsString()
+  employeeType?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }

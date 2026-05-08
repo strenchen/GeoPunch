@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Res, UseGuards, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, Res, UseGuards, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { StatisticsService } from './statistics.service';
 import { Response } from 'express';
