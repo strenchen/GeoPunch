@@ -4,7 +4,7 @@ import { Table, Button, Modal, Form, DatePicker, Select, Input, message, Space, 
 import { PlusOutlined, SwapOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { scheduleService } from '../../services/api';
+import { scheduleService, employeeService } from '../../services/api';
 import type { Schedule } from '../../types';
 
 const { Option } = Select;
@@ -20,6 +20,12 @@ export default function SchedulePage() {
 
   // 本周日期
   const [weekStart, setWeekStart] = useState(dayjs().startOf('week'));
+
+  // 员工列表（用于下拉搜索）
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees-all'],
+    queryFn: () => employeeService.list({}).then((r: any) => r.list || []),
+  });
 
   const { data: scheduleList = [], isLoading } = useQuery({
     queryKey: ['schedules', weekStart.format('YYYY-MM-DD')],
@@ -151,7 +157,20 @@ export default function SchedulePage() {
       <Modal open={isModalOpen} title={t('schedule.addSchedule')} onCancel={handleCloseModal} footer={null} width={480}>
         <Form form={form} onFinish={handleSubmit} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item name="employee_id" label={t('employee.name')} rules={[{ required: true }]}>
-            <Input type="number" />
+            <Select
+              showSearch
+              placeholder="请选择员工"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {employees.map((emp: any) => (
+                <Option key={emp.id} value={emp.id}>
+                  {emp.name} ({emp.employeeNumber})
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="schedule_date" label={t('attendance.date')} rules={[{ required: true }]}>
             <DatePicker style={{ width: '100%' }} />
@@ -181,7 +200,20 @@ export default function SchedulePage() {
       <Modal open={isShiftModalOpen} title={t('schedule.applyShift')} onCancel={handleCloseShiftModal} footer={null} width={480}>
         <Form form={shiftForm} onFinish={handleApplyShift} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item name="employee_id" label={t('employee.name')} rules={[{ required: true }]}>
-            <Input type="number" />
+            <Select
+              showSearch
+              placeholder="请选择员工"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {employees.map((emp: any) => (
+                <Option key={emp.id} value={emp.id}>
+                  {emp.name} ({emp.employeeNumber})
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item name="original_date" label={t('schedule.originalDate')} rules={[{ required: true }]}>
             <DatePicker style={{ width: '100%' }} />
