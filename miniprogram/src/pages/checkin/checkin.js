@@ -27,7 +27,7 @@ Page({
 
     // 判断是上班打卡还是下班打卡
     const type = options.type || 'CHECK_IN';
-    this.setData({ checkinType: type });
+    this.setData({ checkinType: type, checkinTypeText: type === 'CHECK_IN' ? '上班打卡' : '下班打卡' });
 
     // 获取位置
     this.getLocation();

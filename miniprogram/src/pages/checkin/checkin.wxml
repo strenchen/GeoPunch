@@ -1,4 +1,9 @@
 <view class="container">
+  <!-- 打卡类型标题 -->
+  <view class="type-card">
+    <text class="type-text">{{checkinTypeText}}</text>
+  </view>
+
   <!-- 位置信息 -->
   <view class="location-card">
     <view class="location-header">
