@@ -16,6 +16,14 @@ Page({
   },
 
   onLoad() {
+    // 强制登录检查
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
+      return;
+    }
+
     this.loadLeaveBalance();
     this.loadLeaveList();
   },

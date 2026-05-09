@@ -17,6 +17,14 @@ Page({
   },
 
   onLoad() {
+    // 强制登录检查
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
+      return;
+    }
+
     // 计算最大日期（3天内）
     const today = new Date();
     const maxDate = new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000);

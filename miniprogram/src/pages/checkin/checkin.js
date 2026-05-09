@@ -17,6 +17,14 @@ Page({
   },
 
   onLoad(options) {
+    // 强制登录检查
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
+      return;
+    }
+
     // 判断是上班打卡还是下班打卡
     const type = options.type || 'CHECK_IN';
     this.setData({ checkinType: type });

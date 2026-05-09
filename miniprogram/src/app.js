@@ -37,10 +37,10 @@ App({
           if (res.data.code === 0) {
             resolve(res.data.data);
           } else if (res.statusCode === 401) {
-            // token过期，跳转登录
+            // token过期，跳转登录（使用reLaunch防止后退绕过登录页）
             wx.removeStorageSync('token');
             wx.removeStorageSync('userInfo');
-            wx.redirectTo({ url: '/pages/profile/profile?type=login' });
+            wx.reLaunch({ url: '/pages/profile/profile?type=login' });
             reject(new Error('未登录或登录已过期'));
           } else {
             wx.showToast({

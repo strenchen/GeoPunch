@@ -11,6 +11,21 @@ Page({
   },
 
   onLoad() {
+    // 强制登录检查
+    const token = wx.getStorageSync('token');
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
+      return;
+    }
+
+    // 角色检查：仅 ADMIN/MANAGER 可访问
+    if (userInfo.role !== 'ADMIN' && userInfo.role !== 'MANAGER') {
+      wx.showToast({ title: '无权限访问', icon: 'none' });
+      wx.reLaunch({ url: '/pages/index/index' });
+      return;
+    }
+
     this.loadPendingApprovals();
   },
 

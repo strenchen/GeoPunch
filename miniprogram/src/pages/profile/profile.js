@@ -84,7 +84,10 @@ Page({
       });
 
       wx.showToast({ title: '登录成功', icon: 'success' });
-      this.loadStats();
+      // 跳转到首页（tabBar页面需要 reLaunch）
+      setTimeout(() => {
+        wx.reLaunch({ url: '/pages/index/index' });
+      }, 500);
     } catch (err) {
       wx.showToast({ title: err.message || '登录失败', icon: 'none' });
     }
