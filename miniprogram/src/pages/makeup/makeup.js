@@ -14,6 +14,7 @@ Page({
     maxDate: '',
     historyList: [],
     isSubmitting: false,
+    canSubmit: false,
   },
 
   onLoad() {
@@ -92,21 +93,33 @@ Page({
   // 补卡类型选择
   onTypeChange(e) {
     this.setData({ typeIndex: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.targetDate && !!this.data.checkTime && !!this.data.reason
+    });
   },
 
   // 日期选择
   onDateChange(e) {
     this.setData({ targetDate: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.targetDate && !!this.data.checkTime && !!this.data.reason
+    });
   },
 
   // 时间输入
   onTimeInput(e) {
     this.setData({ checkTime: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.targetDate && !!this.data.checkTime && !!this.data.reason
+    });
   },
 
   // 原因输入
   onReasonInput(e) {
     this.setData({ reason: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.targetDate && !!this.data.checkTime && !!this.data.reason
+    });
   },
 
   // 提交补卡

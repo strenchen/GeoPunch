@@ -13,6 +13,10 @@
   </view>
 
   <!-- 打卡记录列表 -->
+  <!-- 加载中 -->
+  <view class="loading-state" wx:if="{{isLoading}}">
+    <text>加载中...</text>
+  </view>
   <view class="records-list">
     <block wx:for="{{records}}" wx:key="id">
       <view class="record-card">

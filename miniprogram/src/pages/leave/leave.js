@@ -13,6 +13,7 @@ Page({
     endDate: '',
     reason: '',
     isSubmitting: false,
+    canSubmit: false,
   },
 
   onLoad() {
@@ -102,21 +103,33 @@ Page({
   // 请假类型选择
   onLeaveTypeChange(e) {
     this.setData({ leaveTypeIndex: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.startDate && !!this.data.endDate && !!this.data.reason
+    });
   },
 
   // 开始日期选择
   onStartDateChange(e) {
     this.setData({ startDate: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.startDate && !!this.data.endDate && !!this.data.reason
+    });
   },
 
   // 结束日期选择
   onEndDateChange(e) {
     this.setData({ endDate: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.startDate && !!this.data.endDate && !!this.data.reason
+    });
   },
 
   // 原因输入
   onReasonInput(e) {
     this.setData({ reason: e.detail.value });
+    this.setData({
+      canSubmit: !!this.data.startDate && !!this.data.endDate && !!this.data.reason
+    });
   },
 
   // 提交请假
