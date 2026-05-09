@@ -76,14 +76,11 @@ Page({
       this.setData({
         userInfo,
         employeeTypeText: employeeTypeText,
-        checkinTime: data.checkIn && data.checkIn !== true ? this.formatTime(data.checkIn) : '',
-        morningTime: data.checkIn && data.checkIn !== true ? this.formatTime(data.checkIn) : scheduleData?.startTime || '',
-        // 上班打卡: checkIn不存在 → 下班打卡: checkIn存在但checkOut不存在 → 已打卡: 两者都存在
-        const hasMorning = data.checkIn && data.checkIn !== true && data.checkIn !== 'true';
-        const hasEvening = data.checkOut && data.checkOut !== true && data.checkOut !== 'true';
-        checkinLabel: !hasMorning ? '上班打卡' : (!hasEvening ? '下班打卡' : '已打卡'),
-        checkinBtnClass: hasMorning && hasEvening ? 'btn-disabled' : 'btn-normal',
-        eveningTime: data.checkOut && data.checkOut !== true ? this.formatTime(data.checkOut) : scheduleData?.endTime || '',
+        checkinTime: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' ? this.formatTime(data.checkIn) : '',
+        morningTime: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' ? this.formatTime(data.checkIn) : scheduleData?.startTime || '',
+        checkinLabel: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' ? (data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? '已打卡' : '下班打卡') : '上班打卡',
+        checkinBtnClass: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' && data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? 'btn-disabled' : 'btn-normal',
+        eveningTime: data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? this.formatTime(data.checkOut) : scheduleData?.endTime || '',
         scheduledStart: scheduleData?.startTime || '',
         scheduledEnd: scheduleData?.endTime || '',
       });
@@ -143,6 +140,7 @@ Page({
       return;
     }
 
+    const hasMorning = !!this.data.morningTime;
     wx.navigateTo({ url: `/pages/checkin/checkin?type=${hasMorning ? 'CHECK_OUT' : 'CHECK_IN'}` });
   },
 
