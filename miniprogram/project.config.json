@@ -2,7 +2,7 @@
   "miniprogramRoot": "src/",
   "projectname": "GeoPunch",
   "description": "GeoPunch Attendance Mini Program",
-  "appid": "touristappid",
+  "appid": "wx066247d93194054d",
   "setting": {
     "urlCheck": false,
     "es6": true,
