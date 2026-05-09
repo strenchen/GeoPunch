@@ -88,7 +88,8 @@ export default function SchedulePage() {
       width: 120,
       render: (_: any, record: Schedule) => {
         const day = dayjs(record.schedule_date);
-        return day.format('ddd');
+        const wdays = [t('weekdays.0'), t('weekdays.1'), t('weekdays.2'), t('weekdays.3'), t('weekdays.4'), t('weekdays.5'), t('weekdays.6')];
+        return wdays[day.day()];
       }
     },
     { title: t('attendance.date'), dataIndex: 'schedule_date', width: 130 },

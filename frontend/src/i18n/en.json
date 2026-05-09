@@ -179,6 +179,7 @@
     "full_day": "Full Day",
     "off": "Off"
   },
+  "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   "settings": {
     "title": "System Settings",
     "basicConfig": "Basic Config",

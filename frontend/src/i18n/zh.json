@@ -173,12 +173,7 @@
     "targetDate": "目标日期",
     "thisWeek": "本周"
   },
-  "shiftType": {
-    "morning": "上午班",
-    "afternoon": "下午班",
-    "full_day": "全天班",
-    "off": "休息"
-  },
+  "weekdays": ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
   "settings": {
     "title": "系统设置",
     "basicConfig": "基础参数",
