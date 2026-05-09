@@ -21,9 +21,10 @@ Page({
   },
 
   onLoad() {
+    const token = wx.getStorageSync('token');
     const userInfo = wx.getStorageSync('userInfo');
-    if (!userInfo) {
-      wx.redirectTo({ url: '/pages/profile/profile?type=login' });
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
       return;
     }
     this.setData({ userInfo });
@@ -31,13 +32,14 @@ Page({
   },
 
   onShow() {
+    const token = wx.getStorageSync('token');
     const userInfo = wx.getStorageSync('userInfo');
-    if (userInfo) {
-      this.setData({ userInfo });
-      this.loadTodayStatus();
-    } else {
-      this.setData({ userInfo: null });
+    if (!token || !userInfo) {
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
+      return;
     }
+    this.setData({ userInfo });
+    this.loadTodayStatus();
     this.initDate();
   },
 
@@ -126,7 +128,7 @@ Page({
   onCheckinTap() {
     const userInfo = this.data.userInfo || wx.getStorageSync('userInfo');
     if (!userInfo) {
-      wx.redirectTo({ url: '/pages/profile/profile?type=login' });
+      wx.reLaunch({ url: '/pages/profile/profile?type=login' });
       return;
     }
     const typeMap = { leader: 'leader', sales: 'sales', rd_admin: 'rd_admin' };
