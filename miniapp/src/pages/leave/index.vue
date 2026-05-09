@@ -116,6 +116,14 @@ const validateForm = () => {
 }
 
 const handleSubmit = async () => {
+  // Guard: ensure logged in before submitting
+  const token = wx.getStorageSync('token')
+  const user = wx.getStorageSync('user')
+  if (!token || !user) {
+    wx.reLaunch({ url: '/pages/login/index' })
+    return
+  }
+
   if (!validateForm()) return
 
   isSubmitting.value = true

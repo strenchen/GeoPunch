@@ -92,6 +92,14 @@ async function fetchRecords() {
 }
 
 async function onSubmit() {
+  // Guard: ensure logged in before submitting
+  const token = wx.getStorageSync('token')
+  const user = wx.getStorageSync('user')
+  if (!token || !user) {
+    wx.reLaunch({ url: '/pages/login/index' })
+    return
+  }
+
   if (!isFormValid.value) {
     wx.showToast({ title: '请填写完整信息，理由至少5个字', icon: 'none' })
     return

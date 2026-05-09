@@ -116,7 +116,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from '@tarojs/taro'
+import { useRouter, useDidShow } from '@tarojs/taro'
 import { attendanceService } from '../../../store/user.js'
 import dayjs from 'dayjs'
 
@@ -213,12 +213,11 @@ onMounted(() => {
   checkLoginAndLoad()
 })
 
-// Also refresh when page shows (Taro useDidShow alternative for composition API)
-import { useDidShow } from '@tarojs/taro'
+// Also refresh when page shows
 useDidShow(() => {
   // Only refresh on show if already loaded once
   if (!loading.value) {
-    loadTodayStatus()
+    loadTodayStatus().catch(() => {})
   }
 })
 
@@ -226,7 +225,8 @@ function checkLoginAndLoad() {
   const token = wx.getStorageSync('token')
   const user = wx.getStorageSync('user')
   if (!token || !user) {
-    wx.redirectTo({ url: '/pages/login/index' })
+    // Use reLaunch to prevent back navigation; consistent with 401 handler
+    wx.reLaunch({ url: '/pages/login/index' })
     return
   }
   userInfo.value = user
@@ -240,15 +240,24 @@ async function loadTodayStatus() {
   try {
     const data = await attendanceService.today()
     todayStatus.value = {
-      clockInTime: data.clockInTime ? dayjs(data.clockInTime).format('HH:mm') : null,
-      clockOutTime: data.clockOutTime ? dayjs(data.clockOutTime).format('HH:mm') : null,
+      clockInTime: data.checkIn ? dayjs(data.checkIn).format('HH:mm') : null,
+      clockOutTime: data.checkOut ? dayjs(data.checkOut).format('HH:mm') : null,
       clockInStatus: data.clockInStatus || null,
       clockOutStatus: data.clockOutStatus || null,
-      hasClockIn: !!data.clockInTime,
-      hasClockOut: !!data.clockOutTime
+      hasClockIn: !!data.checkIn,
+      hasClockOut: !!data.checkOut
     }
   } catch (e) {
     console.error('Failed to load today status:', e)
+    // Ensure we always have a valid fallback state so UI doesn't break
+    todayStatus.value = {
+      clockInTime: null,
+      clockOutTime: null,
+      clockInStatus: null,
+      clockOutStatus: null,
+      hasClockIn: false,
+      hasClockOut: false
+    }
   }
 }
 
@@ -322,8 +331,9 @@ async function handleClockAction() {
           wx.showToast({ title: '下班打卡成功', icon: 'success' })
         }
 
-        // Refresh data
-        await Promise.all([loadTodayStatus(), loadStats()])
+        // Refresh data (non-blocking, errors caught internally)
+        loadTodayStatus().catch(() => {})
+        loadStats().catch(() => {})
       } catch (e) {
         wx.showToast({ title: e.message || '打卡失败', icon: 'none' })
       } finally {

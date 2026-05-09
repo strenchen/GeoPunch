@@ -52,11 +52,23 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from '@tarojs/taro'
 import { authService } from '../../../store/user'
 
+const router = useRouter()
 const employeeNumber = ref('')
 const password = ref('')
 const logging = ref(false)
+
+// Get redirect target from URL params (set by 401 handler)
+function getRedirectUrl() {
+  try {
+    const params = router.params || {}
+    return params.redirect || ''
+  } catch {
+    return ''
+  }
+}
 
 async function handleLogin() {
   if (!employeeNumber.value.trim()) {
@@ -83,8 +95,13 @@ async function handleLogin() {
     wx.setStorageSync('token', accessToken)
     wx.setStorageSync('user', employee)
 
-    // Navigate to index page (clear login from stack)
-    wx.reLaunch({ url: '/pages/index/index' })
+    // Navigate back to the page that triggered login, or default to index
+    const redirectUrl = getRedirectUrl()
+    if (redirectUrl) {
+      wx.redirectTo({ url: decodeURIComponent(redirectUrl) })
+    } else {
+      wx.reLaunch({ url: '/pages/index/index' })
+    }
   } catch (err) {
     const msg = err.message || '登录失败，请稍后重试'
     wx.showToast({ title: msg, icon: 'none', duration: 2500 })

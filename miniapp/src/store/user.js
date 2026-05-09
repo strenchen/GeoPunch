@@ -28,7 +28,13 @@ async function request(url, options = {}) {
       }
     } else if (res.statusCode === 401) {
       wx.removeStorageSync('token')
-      wx.navigateTo({ url: '/pages/login/index' })
+      wx.removeStorageSync('user')
+      // Use reLaunch to prevent user from going back via navbar
+      // Pass current page as redirect target
+      const pages = getCurrentPages()
+      const currentPage = pages[pages.length - 1]
+      const redirectUrl = currentPage ? `/${currentPage.route}` : '/pages/index/index'
+      wx.reLaunch({ url: `/pages/login/index?redirect=${encodeURIComponent(redirectUrl)}` })
       throw new Error('Unauthorized')
     } else {
       throw new Error(`HTTP ${res.statusCode}`)
@@ -50,7 +56,7 @@ export const attendanceService = {
   clockIn: (data) => request('/attendance/clock', { method: 'POST', data: { type: 'CHECK_IN', ...data } }),
   clockOut: (data) => request('/attendance/clock', { method: 'POST', data: { type: 'CHECK_OUT', ...data } }),
   today: () => request('/attendance/status/today'),
-  records: (params) => request('/attendance/records', { method: 'POST', data: params }),
+  records: (params) => request('/attendance/records', { data: params }),
   stats: () => request('/statistics/personal'),
   leaveBalance: (employeeId) => request(`/attendance/leave-balance/${employeeId}`)
 }

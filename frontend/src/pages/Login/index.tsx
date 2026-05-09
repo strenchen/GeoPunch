@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store/appStore';
 import { authService } from '../../services/api';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setToken, setCurrentUser } = useAppStore();
+  const redirect = searchParams.get('redirect') || '/employee';
 
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
@@ -24,7 +26,7 @@ export default function LoginPage() {
         role: getRoleName(employee.role) 
       });
       message.success(t('common.success'));
-      navigate('/employee');
+      navigate(redirect);
     } catch (err) {
       message.error(t('common.error'));
     }

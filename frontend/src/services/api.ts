@@ -21,6 +21,12 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: { ...headers, ...options?.headers }
   });
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    const redirect = encodeURIComponent(window.location.pathname);
+    window.location.href = `/login?redirect=${redirect}`;
+    throw new Error('Unauthorized');
+  }
   if (!response.ok) throw new Error(`API Error: ${response.status}`);
   const json: ApiResponse<T> = await response.json();
   return json.data;

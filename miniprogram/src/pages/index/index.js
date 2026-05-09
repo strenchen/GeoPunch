@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { attendanceService, employeeService } = require('../../services/api');
+const { attendanceService, employeeService, scheduleService } = require('../../services/api');
 
 Page({
   data: {
@@ -92,6 +92,10 @@ Page({
     try {
       const userInfo = this.data.userInfo || wx.getStorageSync('userInfo');
       if (!userInfo) return null;
+      if (typeof scheduleService === 'undefined') {
+        console.warn('scheduleService not available');
+        return null;
+      }
       const today = new Date().toISOString().split('T')[0];
       const schedules = await scheduleService.list({
         employee_id: userInfo.id,
