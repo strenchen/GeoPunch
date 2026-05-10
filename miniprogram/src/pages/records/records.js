@@ -34,34 +34,41 @@ Page({
         month: this.data.month,
       });
 
-      const records = (data || []).map((item) => {
+      const records = (data || []).reduce((days, item) => {
         const date = new Date(item.checkTime || item.workDate);
+        const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        const existing = days.find(d => d.dateKey === dateKey);
+        const timeStr = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
         const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const dateStr = `${date.getMonth() + 1}月${date.getDate()}日`;
-        const weekday = weekdays[date.getDay()];
-        const statusMap = {
-          NORMAL: { text: '正常', class: 'normal' },
-          LATE: { text: '迟到', class: 'late' },
-          EARLY_LEAVE: { text: '早退', class: 'early' },
-          ABSENT: { text: '缺勤', class: 'absent' },
-        };
-        const morningStatus = statusMap[item.morningStatus] || { text: '未打卡', class: 'absent' };
-        const eveningStatus = statusMap[item.eveningStatus] || { text: '未打卡', class: 'absent' };
 
-        return {
-          id: item.id,
-          dateStr,
-          weekday,
-          morningTime: item.morningTime || '',
-          eveningTime: item.eveningTime || '',
-          morningStatus: morningStatus.class,
-          eveningStatus: eveningStatus.class,
-          morningStatusText: morningStatus.text,
-          eveningStatusText: eveningStatus.text,
-          address: item.address || '',
-          canApplyMakeup: item.morningStatus === 'ABSENT' || item.eveningStatus === 'ABSENT',
-        };
-      });
+        if (!existing) {
+          const isMorning = item.type === 'CHECK_IN';
+          days.push({
+            dateKey,
+            dateStr: `${date.getMonth() + 1}月${date.getDate()}日`,
+            weekday: weekdays[date.getDay()],
+            morningTime: isMorning ? timeStr : '',
+            eveningTime: item.type === 'CHECK_OUT' ? timeStr : '',
+            morningStatus: isMorning ? 'normal' : 'absent',
+            morningStatusText: isMorning ? '正常' : '未打卡',
+            eveningStatus: item.type === 'CHECK_OUT' ? 'normal' : 'absent',
+            eveningStatusText: item.type === 'CHECK_OUT' ? '正常' : '未打卡',
+            address: item.address || '',
+            canApplyMakeup: false,
+          });
+        } else {
+          if (item.type === 'CHECK_IN' && !existing.morningTime) {
+            existing.morningTime = timeStr;
+            existing.morningStatus = 'normal';
+            existing.morningStatusText = '正常';
+          } else if (item.type === 'CHECK_OUT') {
+            existing.eveningTime = timeStr;
+            existing.eveningStatus = 'normal';
+            existing.eveningStatusText = '正常';
+          }
+        }
+        return days;
+      }, []);
 
       this.setData({ records, isLoading: false });
     } catch (err) {
