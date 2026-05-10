@@ -16,17 +16,20 @@ export default function ReportPage() {
 
   const { data: summaryData = [], isLoading } = useQuery({
     queryKey: ['attendanceSummary', yearMonth],
-    queryFn: () => statisticsService.monthly({ year, month }).then((list: any[]) => (list as any[]).map(item => ({
-      employee_name: item.employee?.name,
-      department_name: item.employee?.department,
-      total_work_days: item.totalWorkingDays || 0,
-      normal_days: item.normalDays || 0,
-      late_days: item.lateDays || 0,
-      early_leave_days: item.earlyLeaveDays || 0,
-      absent_days: item.absentDays || 0,
-      leave_days: (item.annualLeaveDays || 0) + (item.sickLeaveDays || 0) + (item.personalLeaveDays || 0),
-      worked_days: item.workedDays || 0,
-    })))
+    queryFn: () => statisticsService.monthly({ year, month }).then((list: any[]) =>
+      (list as any[]).map(item => ({
+        employee_id: item.employee_id,
+        employee_name: item.employee_name,
+        department_name: item.department_name,
+        total_work_days: item.total_work_days || 0,
+        normal_days: item.normal_days || 0,
+        late_days: item.late_days || 0,
+        early_leave_days: item.early_leave_days || 0,
+        absent_days: item.absent_days || 0,
+        worked_days: item.worked_days || 0,
+        leave_days: 0,
+      }))
+    ),
   });
 
   const handleExport = () => {
