@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ScheduleService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+  ) {}
 
   async list(params: {
     employee_id?: number;
@@ -25,6 +29,24 @@ export class ScheduleService {
       skip: (page - 1) * pageSize, take: pageSize,
       include: { employee: { select: { id: true, name: true, employeeNumber: true, department: true } } },
     });
+    const workStart = this.config.get<string>('ATTENDANCE_WORK_START') || '09:00';
+    const workEnd = this.config.get<string>('ATTENDANCE_WORK_END') || '18:00';
+    const isSingleDay = start_date && end_date && start_date === end_date;
+    if (isSingleDay && schedules.length === 0) {
+      return {
+        schedules: [{
+          id: 0,
+          employeeId: employee_id || 0,
+          scheduleDate: new Date(start_date),
+          shiftType: 'FULL',
+          startTime: workStart,
+          endTime: workEnd,
+          employee: null,
+        }],
+        total: 1, page, pageSize,
+      };
+    }
+
     return { schedules, total: schedules.length, page, pageSize };
   }
 
