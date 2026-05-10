@@ -104,8 +104,8 @@ Page({
         start_date: today,
         end_date: today,
       });
-      if (schedules?.data?.schedules?.[0]) {
-        const schedule = schedules.data.schedules[0];
+      if (schedules?.schedules?.[0]) {
+        const schedule = schedules.schedules[0];
         return {
           startTime: schedule.startTime,
           endTime: schedule.endTime,
