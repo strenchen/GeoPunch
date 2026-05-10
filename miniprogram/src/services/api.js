@@ -165,9 +165,9 @@ export const approvalService = {
 export const scheduleService = {
   list: (params = {}) => {
     const qs = [];
-    if (params.employee_id) qs.push(`employeeId=${params.employee_id}`);
-    if (params.start_date) qs.push(`startDate=${params.start_date}`);
-    if (params.end_date) qs.push(`endDate=${params.end_date}`);
+    if (params.employee_id) qs.push(`employee_id=${params.employee_id}`);
+    if (params.start_date) qs.push(`start_date=${params.start_date}`);
+    if (params.end_date) qs.push(`end_date=${params.end_date}`);
     const query = qs.length ? `?${qs.join('&')}` : '';
     return app.request({ url: `/schedules${query}` });
   },
