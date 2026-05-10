@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Table, DatePicker, Space, Tag, Card, Row, Col, Statistic, message, Modal, Popconfirm } from 'antd';
 import { LoginOutlined, LogoutOutlined, EnvironmentOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -45,7 +45,7 @@ export default function AttendancePage() {
   });
 
   // 按日期聚合
-  const aggregatedRecords: AggregatedRecord[] = (() => {
+  const aggregatedRecords: AggregatedRecord[] = useMemo(() => {
     const byDate: Record<string, any[]> = {};
     for (const r of rawRecords) {
       const dateKey = dayjs(r.checkTime).format('YYYY-MM-DD');
@@ -76,7 +76,7 @@ export default function AttendancePage() {
           rawRecords: items,
         };
       });
-  })();
+  }, [rawRecords]);
 
   // 请假余额
   const { data: leaveBalance } = useQuery({
