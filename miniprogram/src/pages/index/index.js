@@ -80,7 +80,7 @@ Page({
         morningTime: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' ? this.formatTime(data.checkIn) : scheduleData?.startTime || '',
         checkinLabel: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' ? (data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? '已打卡' : '下班打卡') : '上班打卡',
         checkinBtnClass: data.checkIn && data.checkIn !== true && data.checkIn !== 'true' && data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? 'btn-disabled' : 'btn-normal',
-        eveningTime: data.checkOut && data.checkOut !== true && data.checkOut !== 'true' ? this.formatTime(data.checkOut) : scheduleData?.endTime || '',
+        eveningTime: data.checkOut && data.checkIn ? this.formatTime(data.checkOut) : scheduleData?.endTime || '',
         scheduledStart: scheduleData?.startTime || '',
         scheduledEnd: scheduleData?.endTime || '',
       });
