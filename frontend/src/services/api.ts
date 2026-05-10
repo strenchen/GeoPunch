@@ -77,6 +77,8 @@ export const attendanceService = {
   records: (params?: { employee_id?: number; start_date?: string; end_date?: string; month?: number; year?: number }) => {
     const searchParams = new URLSearchParams();
     if (params?.employee_id) searchParams.set('employeeId', String(params.employee_id));
+    if (params?.start_date) searchParams.set('start_date', params.start_date);
+    if (params?.end_date) searchParams.set('end_date', params.end_date);
     if (params?.month) searchParams.set('month', String(params.month));
     if (params?.year) searchParams.set('year', String(params.year));
     const qs = searchParams.toString();
