@@ -210,7 +210,7 @@ export const statisticsService = {
       return (r.employees || []).map((emp: any) => ({
         employee_id: emp.employee?.id,
         employee_name: emp.employee?.name,
-        department_name: emp.employee?.department,
+        department_name: emp.employee?.department?.name || '',
         year_month: `${r.year}-${String(r.month).padStart(2,'0')}`,
         total_work_days: r.totalWorkingDays,
         normal_days: emp.normalDays,
