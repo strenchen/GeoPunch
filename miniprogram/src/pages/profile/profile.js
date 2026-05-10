@@ -21,6 +21,8 @@ Page({
   onShow() {
     const token = wx.getStorageSync('token');
     const userInfo = wx.getStorageSync('userInfo');
+    const employeeNumber = wx.getStorageSync('savedEmployeeNumber') || '';
+    const password = wx.getStorageSync('savedPassword') || '';
     if (token && userInfo) {
       this.setData({
         isLoggedIn: true,
@@ -29,7 +31,7 @@ Page({
       });
       this.loadStats();
     } else {
-      this.setData({ isLoggedIn: false });
+      this.setData({ isLoggedIn: false, employeeNumber, password });
     }
   },
 
@@ -70,6 +72,8 @@ Page({
 
       wx.setStorageSync('token', data.accessToken);
       wx.setStorageSync('userInfo', userInfo);
+      wx.setStorageSync('savedEmployeeNumber', employeeNumber);
+      wx.setStorageSync('savedPassword', password);
 
       // 更新全局状态
       const app = getApp();
@@ -80,7 +84,6 @@ Page({
         isLoggedIn: true,
         userInfo,
         isAdmin: userInfo.role === 'ADMIN' || userInfo.role === 'MANAGER',
-        password: '',
       });
 
       wx.showToast({ title: '登录成功', icon: 'success' });

@@ -12,12 +12,26 @@ export default function LoginPage() {
   const { setToken, setCurrentUser } = useAppStore();
   const redirect = searchParams.get('redirect') || '/employee';
 
+  const [form] = Form.useForm();
+
+
+  // 初始化：尝试自动填充已保存的账号
+  React.useEffect(() => {
+    const savedUsername = localStorage.getItem('savedUsername') || '';
+    const savedPassword = localStorage.getItem('savedPassword') || '';
+    if (savedUsername || savedPassword) {
+      form.setFieldsValue({ username: savedUsername, password: savedPassword });
+    }
+  }, [form]);
+
   const handleSubmit = async (values: { username: string; password: string }) => {
     try {
       const { accessToken, employee } = await authService.login({ 
         employeeNumber: values.username, 
         password: values.password 
       });
+      localStorage.setItem('savedUsername', values.username);
+      localStorage.setItem('savedPassword', values.password);
       setToken(accessToken);
       const getRoleName = (role: any) => typeof role === 'string' ? role : role?.name || '';
       setCurrentUser({ 
