@@ -107,8 +107,8 @@ Page({
       if (schedules?.data?.schedules?.[0]) {
         const schedule = schedules.data.schedules[0];
         return {
-          startTime: schedule.start_time,
-          endTime: schedule.end_time,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
         };
       }
     } catch (err) {
