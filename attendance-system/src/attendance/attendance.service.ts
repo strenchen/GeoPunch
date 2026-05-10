@@ -299,6 +299,17 @@ export class AttendanceService {
     return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
   }
 
+  // ============================================================
+  // 删除打卡记录
+  // ============================================================
+  async deleteRecord(id: number, employeeId: number) {
+    const record = await this.prisma.attendance.findUnique({ where: { id } });
+    if (!record) throw new Error('记录不存在');
+    if (record.employeeId !== employeeId) throw new Error('无权限删除此记录');
+    await this.prisma.attendance.delete({ where: { id } });
+    return { code: 0, message: '删除成功' };
+  }
+
   async getTodayStatus(employeeId: number) {
     // Calculate Asia/Shanghai date boundaries
     const localDateStr = this.getLocalDateStr();

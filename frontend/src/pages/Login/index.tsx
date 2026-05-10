@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
@@ -16,7 +17,7 @@ export default function LoginPage() {
 
 
   // 初始化：尝试自动填充已保存的账号
-  React.useEffect(() => {
+  useEffect(() => {
     const savedUsername = localStorage.getItem('savedUsername') || '';
     const savedPassword = localStorage.getItem('savedPassword') || '';
     if (savedUsername || savedPassword) {

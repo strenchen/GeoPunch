@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AttendanceService } from './attendance.service';
 
@@ -59,6 +59,11 @@ export class AttendanceController {
     @Body() body: { resolution: 'APPROVED' | 'REJECTED'; note?: string },
   ) {
     return this.attendanceService.resolveAbnormal(id, body.resolution, body.note);
+  }
+
+  @Delete(':id')
+  deleteRecord(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.attendanceService.deleteRecord(id, req.user.id);
   }
 
   @Get('leave-balance/:employeeId')

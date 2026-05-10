@@ -80,8 +80,9 @@ export const attendanceService = {
     if (params?.month) searchParams.set('month', String(params.month));
     if (params?.year) searchParams.set('year', String(params.year));
     const qs = searchParams.toString();
-    return request<AttendanceRecord[]>(`/attendance/records${qs ? '?' + qs : ''}`, { method: 'GET' });
+    return request<any[]>(`/attendance/records${qs ? '?' + qs : ''}`, { method: 'GET' });
   },
+  deleteRecord: (id: number) => request<any>(`/attendance/${id}`, { method: 'DELETE' }),
   clockIn: (data: { latitude?: number; longitude?: number; address?: string }) =>
     request<AttendanceRecord>('/attendance/clock', { method: 'POST', body: JSON.stringify({ type: 'CHECK_IN', ...data }) }),
   clockOut: (data: { latitude?: number; longitude?: number; address?: string }) =>
