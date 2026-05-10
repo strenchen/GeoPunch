@@ -294,13 +294,21 @@ export class AttendanceService {
   // ============================================================
   // 获取今日打卡状态
   // ============================================================
+  // Helper: get local date string in Asia/Shanghai (YYYY-MM-DD)
+  private getLocalDateStr(date: Date = new Date()): string {
+    return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+  }
+
   async getTodayStatus(employeeId: number) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today.getTime() + 86400000);
+    // Calculate Asia/Shanghai date boundaries
+    const localDateStr = this.getLocalDateStr();
+    const [year, month, day] = localDateStr.split('-').map(Number);
+    // Asia/Shanghai 00:00 = UTC previous day 16:00
+    const todayStart = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    const tomorrowStart = new Date(Date.UTC(year, month - 1, day + 1, 0, 0, 0));
 
     const records = await this.prisma.attendance.findMany({
-      where: { employeeId, checkTime: { gte: today, lt: tomorrow } },
+      where: { employeeId, checkTime: { gte: todayStart, lt: tomorrowStart } },
       orderBy: { checkTime: 'asc' },
     });
 
@@ -310,7 +318,7 @@ export class AttendanceService {
     return {
       code: 0, message: 'success',
       data: {
-        date: today.toISOString().split('T')[0],
+        date: localDateStr,
         checkIn: checkIn?.checkTime || null,
         checkOut: checkOut?.checkTime || null,
         isComplete: !!(checkIn && checkOut),
